@@ -7,7 +7,7 @@ export default {
     defaultLanguage: 'en',
   },
   componentPath: 'src/components',
-  componentPropsImport: '@/lib/component-props',
+  componentPropsImport: 'lib/component-props', // Sitecore Content SDK starter convention
   sitecorePackage: '@sitecore-content-sdk/nextjs',
   useDatasourceCheck: true,
   generateMocks: true,
