@@ -1,0 +1,8 @@
+{
+  "name": "sitecore-scaffold",
+  "version": "0.0.0",
+  "type": "module",
+  "bin": { "sitecore-scaffold": "./dist/index.js" },
+  "scripts": { "build": "tsup" },
+  "dependencies": { "@sitecore-scaffold/core": "*" }
+}
