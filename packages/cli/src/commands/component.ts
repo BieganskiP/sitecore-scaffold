@@ -65,6 +65,7 @@ export async function runComponent(input: ComponentInput, deps?: Partial<Inspect
   const contract = buildContract(node, config.fieldTypeOverrides);
   const files = generateFiles(contract, node, {
     componentPath: config.componentPath,
+    componentFolder: config.componentFolder,
     componentPropsImport: config.componentPropsImport,
     sitecorePackage: config.sitecorePackage,
     useDatasourceCheck: config.useDatasourceCheck,

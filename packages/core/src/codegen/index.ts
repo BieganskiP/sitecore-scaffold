@@ -11,7 +11,10 @@ export function generateFiles(
   node: RenderingNode,
   config: CodegenConfig,
 ): GeneratedFile[] {
-  const base = `${config.componentPath}/${contract.name}`;
+  const dir = config.componentFolder
+    ? `${config.componentPath}/${contract.name}`
+    : config.componentPath;
+  const base = `${dir}/${contract.name}`;
   const files: GeneratedFile[] = [
     { path: `${base}.types.ts`, contents: renderTypesFile(contract, config.componentPropsImport) },
     {

@@ -6,7 +6,8 @@ export default {
     site: 'my-site',
     defaultLanguage: 'en',
   },
-  componentPath: 'src/components',
+  componentPath: 'src/components/sitecore',
+  componentFolder: true, // place each component's files in its own <Name>/ folder
   componentPropsImport: 'lib/component-props', // Sitecore Content SDK starter convention
   sitecorePackage: '@sitecore-content-sdk/nextjs',
   useDatasourceCheck: true,

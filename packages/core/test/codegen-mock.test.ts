@@ -28,9 +28,10 @@ describe('renderMockFile', () => {
 });
 
 describe('generateFiles', () => {
-  it('produces three files at componentPath when mocks enabled and styling none', () => {
+  it('produces three flat files at componentPath when componentFolder is false', () => {
     const files = generateFiles(contract, node, {
       componentPath: 'src/components',
+      componentFolder: false,
       componentPropsImport: 'lib/component-props',
       sitecorePackage: '@sitecore-content-sdk/nextjs',
       useDatasourceCheck: true,
@@ -46,9 +47,30 @@ describe('generateFiles', () => {
     ]);
   });
 
+  it('nests files in a per-component folder when componentFolder is true', () => {
+    const files = generateFiles(contract, node, {
+      componentPath: 'src/components/sitecore',
+      componentFolder: true,
+      componentPropsImport: 'lib/component-props',
+      sitecorePackage: '@sitecore-content-sdk/nextjs',
+      useDatasourceCheck: true,
+      generateMocks: true,
+      styling: 'css',
+      fieldTypeOverrides: {},
+    });
+    const paths = files.map((f) => f.path).sort();
+    expect(paths).toEqual([
+      'src/components/sitecore/Hero/Hero.mock.json',
+      'src/components/sitecore/Hero/Hero.module.css',
+      'src/components/sitecore/Hero/Hero.tsx',
+      'src/components/sitecore/Hero/Hero.types.ts',
+    ]);
+  });
+
   it('omits mock file when mocks disabled', () => {
     const files = generateFiles(contract, node, {
       componentPath: 'src/components',
+      componentFolder: false,
       componentPropsImport: 'lib/component-props',
       sitecorePackage: '@sitecore-content-sdk/nextjs',
       useDatasourceCheck: true,
@@ -62,6 +84,7 @@ describe('generateFiles', () => {
   it('emits a CSS module file when styling is css', () => {
     const files = generateFiles(contract, node, {
       componentPath: 'src/components',
+      componentFolder: false,
       componentPropsImport: 'lib/component-props',
       sitecorePackage: '@sitecore-content-sdk/nextjs',
       useDatasourceCheck: true,
@@ -78,6 +101,7 @@ describe('generateFiles', () => {
   it('emits no CSS file when styling is tailwind', () => {
     const files = generateFiles(contract, node, {
       componentPath: 'src/components',
+      componentFolder: false,
       componentPropsImport: 'lib/component-props',
       sitecorePackage: '@sitecore-content-sdk/nextjs',
       useDatasourceCheck: true,

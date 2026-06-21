@@ -10,6 +10,8 @@ export type StylingMode = 'css' | 'tailwind' | 'none';
 export interface ScaffoldConfig {
   edge: EdgeConfig;
   componentPath: string;
+  /** When true, each component's files go in their own `<componentPath>/<Name>/` folder. */
+  componentFolder: boolean;
   componentPropsImport: string;
   sitecorePackage: string;
   useDatasourceCheck: boolean;

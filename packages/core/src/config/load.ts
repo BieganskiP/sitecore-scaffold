@@ -43,6 +43,7 @@ export async function loadConfig(path: string): Promise<ScaffoldConfig> {
   return {
     edge: loaded.edge,
     componentPath: loaded.componentPath!,
+    componentFolder: loaded.componentFolder ?? true,
     componentPropsImport: loaded.componentPropsImport!,
     sitecorePackage: loaded.sitecorePackage!,
     useDatasourceCheck: loaded.useDatasourceCheck ?? true,

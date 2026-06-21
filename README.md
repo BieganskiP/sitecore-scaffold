@@ -18,6 +18,14 @@ Content SDK-ready Next.js components from it.
 `component` scaffolds `<Name>.tsx`, `<Name>.types.ts`, `<Name>.mock.json`, and
 (when `styling: 'css'`) `<Name>.module.css`.
 
+## Output location
+
+- `componentPath` — base directory for generated components (default
+  `src/components/sitecore`).
+- `componentFolder` — when `true` (default), each component's files go in their
+  own `<componentPath>/<Name>/` folder; when `false`, they are written flat into
+  `componentPath`.
+
 ## Styling
 
 The `styling` config option controls component styles:

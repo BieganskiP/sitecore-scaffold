@@ -33,6 +33,7 @@ describe('loadConfig', () => {
     expect(cfg.edge.apiKey).toBe('secret-token');
     expect(cfg.componentPath).toBe('src/components');
     expect(cfg.styling).toBe('css'); // default when not specified
+    expect(cfg.componentFolder).toBe(true); // default when not specified
   });
 
   it('throws when styling is not a recognized value', async () => {
