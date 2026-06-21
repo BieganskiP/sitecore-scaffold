@@ -1,0 +1,36 @@
+{
+  "sitecore": {
+    "context": { "pageState": "normal", "language": "en" },
+    "route": {
+      "name": "about-us",
+      "placeholders": {
+        "headless-main": [
+          {
+            "uid": "u1",
+            "componentName": "Hero",
+            "dataSource": "/sitecore/content/Data/Hero/About Hero",
+            "params": { "variant": "dark", "backgroundColor": "#000" },
+            "fields": {
+              "heading": { "value": "About Us" },
+              "description": { "value": "<p>Rich</p>" },
+              "image": { "value": { "src": "/-/media/a.jpg", "alt": "a", "width": 100, "height": 50 } },
+              "ctaLink": { "value": { "href": "/contact", "text": "Contact" } }
+            }
+          },
+          {
+            "uid": "u2",
+            "componentName": "PromoCards",
+            "dataSource": "/sitecore/content/Data/Promos/About Promos",
+            "params": {},
+            "fields": { "title": { "value": "Promos" }, "cards": { "value": [{ "id": "1" }] } },
+            "placeholders": {
+              "cards": [
+                { "uid": "u3", "componentName": "Card", "params": {}, "fields": { "label": { "value": "C1" } } }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}
