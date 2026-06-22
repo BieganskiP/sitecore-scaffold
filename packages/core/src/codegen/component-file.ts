@@ -1,6 +1,6 @@
 import type { ComponentContract, FieldContract, StylingMode } from '../types.js';
 import { accessExpr, optionalAccess, toKebabAttr } from '../identifiers.js';
-import { collectCardFields, flattenFields } from './fields.js';
+import { collectCardTypes, flattenFields } from './fields.js';
 import { createStyleHelper } from './styling.js';
 
 interface ComponentOptions {
@@ -81,7 +81,7 @@ export function renderComponentFile(c: ComponentContract, opts: ComponentOptions
     ? `import {\n${importNames.map((n) => `  ${n},`).join('\n')}\n} from '${opts.sitecorePackage}';\n\n`
     : '';
 
-  const itemTypeNames = collectCardFields(c.fields).map((f) => f.itemTypeName as string);
+  const itemTypeNames = collectCardTypes(c.fields).map((f) => f.itemTypeName as string);
   const typeImports = [`${c.name}Props`, ...itemTypeNames];
   const imports = `${sdkImportLine}${style.importLine}import { ${typeImports.join(', ')} } from './${c.name}.types';`;
 

@@ -167,6 +167,43 @@ describe('renderComponentFile', () => {
     expect(out).toContain("<Text tag=\"span\" field={itemItem.fields['Slide Title']} />");
   });
 
+  it('imports each repeated item type only once when an itemTypeName recurs at multiple depths', () => {
+    const dupContract: ComponentContract = {
+      name: 'ParkingFeeCalculator',
+      fields: [
+        {
+          name: 'Terminals', tsType: 'TerminalsItem[]', optional: false, renderer: 'Cards', sitecoreImport: null,
+          itemTypeName: 'TerminalsItem',
+          itemFields: [
+            { name: 'Name', tsType: 'Field<string>', optional: false, renderer: 'Text', sitecoreImport: 'Text' },
+          ],
+        },
+        {
+          name: 'Offers', tsType: 'OffersItem[]', optional: false, renderer: 'Cards', sitecoreImport: null,
+          itemTypeName: 'OffersItem',
+          itemFields: [
+            {
+              name: 'Terminals', tsType: 'TerminalsItem[]', optional: false, renderer: 'Cards', sitecoreImport: null,
+              itemTypeName: 'TerminalsItem',
+              itemFields: [
+                { name: 'Name', tsType: 'Field<string>', optional: false, renderer: 'Text', sitecoreImport: 'Text' },
+              ],
+            },
+          ],
+        },
+      ],
+      params: [],
+      placeholders: [],
+    };
+    const out = renderComponentFile(dupContract, {
+      propsImport: 'lib/component-props',
+      sitecorePackage: '@sitecore-content-sdk/nextjs',
+      useDatasourceCheck: false,
+      styling: 'none',
+    });
+    expect(out).toContain("import { ParkingFeeCalculatorProps, TerminalsItem, OffersItem } from './ParkingFeeCalculator.types';");
+  });
+
   it('uses bracket access for field and param names with spaces', () => {
     const spacedContract: ComponentContract = {
       name: 'Promo',

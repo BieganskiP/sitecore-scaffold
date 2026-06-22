@@ -119,6 +119,39 @@ describe('renderTypesFile', () => {
     expect(out).toContain('export type { ColumnSliderFields, ColumnSliderParams, ColumnSliderProps, TabsItem, ColumnSliderItemsItem };');
   });
 
+  it('emits each repeated item type only once when the same itemTypeName appears at multiple depths', () => {
+    const dupContract: ComponentContract = {
+      name: 'ParkingFeeCalculator',
+      fields: [
+        {
+          name: 'Terminals', tsType: 'TerminalsItem[]', optional: false, renderer: 'Cards', sitecoreImport: null,
+          itemTypeName: 'TerminalsItem',
+          itemFields: [
+            { name: 'Name', tsType: 'Field<string>', optional: false, renderer: 'Text', sitecoreImport: 'Text' },
+          ],
+        },
+        {
+          name: 'Offers', tsType: 'OffersItem[]', optional: false, renderer: 'Cards', sitecoreImport: null,
+          itemTypeName: 'OffersItem',
+          itemFields: [
+            {
+              name: 'Terminals', tsType: 'TerminalsItem[]', optional: false, renderer: 'Cards', sitecoreImport: null,
+              itemTypeName: 'TerminalsItem',
+              itemFields: [
+                { name: 'Name', tsType: 'Field<string>', optional: false, renderer: 'Text', sitecoreImport: 'Text' },
+              ],
+            },
+          ],
+        },
+      ],
+      params: [],
+      placeholders: [],
+    };
+    const out = renderTypesFile(dupContract, 'lib/component-props');
+    expect(out.match(/type TerminalsItem = \{/g)?.length).toBe(1);
+    expect(out).toContain('export type { ParkingFeeCalculatorFields, ParkingFeeCalculatorParams, ParkingFeeCalculatorProps, TerminalsItem, OffersItem };');
+  });
+
   it('quotes field and param keys that are not valid identifiers', () => {
     const spacedContract: ComponentContract = {
       name: 'Promo',

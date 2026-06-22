@@ -1,6 +1,6 @@
 import type { ComponentContract, FieldContract } from '../types.js';
 import { propertyKey } from '../identifiers.js';
-import { collectCardFields, flattenFields } from './fields.js';
+import { collectCardTypes, flattenFields } from './fields.js';
 
 const SITECORE_TYPES_ORDER = ['Field', 'ImageField', 'LinkField'] as const;
 
@@ -53,8 +53,9 @@ export function renderTypesFile(c: ComponentContract, propsImport: string): stri
 };\n`
     : '';
 
-  // Typed item interfaces for every 'Cards' field, including nested ones.
-  const cardFields = collectCardFields(c.fields);
+  // Typed item interfaces for every 'Cards' field, including nested ones,
+  // de-duplicated by item type name (the same template can recur at any depth).
+  const cardFields = collectCardTypes(c.fields);
   const itemTypeDefs = cardFields.map((f) => `\n${renderItemType(f)}\n`).join('');
 
   // Item types are referenced by the generated component, so export them too.
