@@ -7,6 +7,7 @@ export { formatTree } from './inspect/render-tree.js';
 export { inferField } from './contract/infer.js';
 export { buildContract } from './contract/build.js';
 export { generateFiles } from './codegen/index.js';
+export { normalizeVariants } from './codegen/variants.js';
 export { renderTypesFile } from './codegen/types-file.js';
 export { renderComponentFile } from './codegen/component-file.js';
 export { renderMockFile } from './codegen/mock-file.js';
