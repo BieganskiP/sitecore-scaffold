@@ -10,6 +10,7 @@ export function generateFiles(
   contract: ComponentContract,
   node: RenderingNode,
   config: CodegenConfig,
+  variants?: string[],
 ): GeneratedFile[] {
   const dir = config.componentFolder
     ? `${config.componentPath}/${contract.name}`
@@ -24,6 +25,7 @@ export function generateFiles(
         sitecorePackage: config.sitecorePackage,
         useDatasourceCheck: config.useDatasourceCheck,
         styling: config.styling,
+        variants,
       }),
     },
   ];

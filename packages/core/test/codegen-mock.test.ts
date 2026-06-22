@@ -111,4 +111,25 @@ describe('generateFiles', () => {
     });
     expect(files.some((f) => f.path.endsWith('.css'))).toBe(false);
   });
+
+  it('forwards variants to the component file', () => {
+    const files = generateFiles(
+      contract,
+      node,
+      {
+        componentPath: 'src/components',
+        componentFolder: false,
+        componentPropsImport: 'lib/component-props',
+        sitecorePackage: '@sitecore-content-sdk/nextjs',
+        useDatasourceCheck: true,
+        generateMocks: false,
+        styling: 'none',
+        fieldTypeOverrides: {},
+      },
+      ['Default', 'ThreeCard'],
+    );
+    const tsx = files.find((f) => f.path === 'src/components/Hero.tsx');
+    expect(tsx?.contents).toContain('const HeroVariant = (');
+    expect(tsx?.contents).toContain('export const ThreeCard =');
+  });
 });
