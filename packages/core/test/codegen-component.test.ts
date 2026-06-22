@@ -287,4 +287,54 @@ describe('renderComponentFile', () => {
     expect(out).not.toContain("from '@sitecore-content-sdk/nextjs'");
     expect(out).toContain("import { SimpleBoxProps } from './SimpleBox.types';");
   });
+
+  const variantContract: ComponentContract = {
+    name: 'GridModule',
+    fields: [
+      { name: 'Title', tsType: 'Field<string>', optional: false, renderer: 'Text', sitecoreImport: 'Text' },
+    ],
+    params: [],
+    placeholders: [],
+  };
+
+  it('emits a shared inner component and named export wrappers in variant mode', () => {
+    const out = renderComponentFile(variantContract, {
+      propsImport: 'lib/component-props',
+      sitecorePackage: '@sitecore-content-sdk/nextjs',
+      useDatasourceCheck: true,
+      styling: 'none',
+      variants: ['Default', 'ThreeCard'],
+    });
+    expect(out).toContain('const GridModuleVariant = ({ fields, variant }: GridModuleProps & { variant: string }) => {');
+    expect(out).toContain('<section data-variant={variant}>');
+    expect(out).toContain('<Text tag="h1" field={fields.Title} />');
+    expect(out).toContain('const renderDefault = (props: GridModuleProps) => <GridModuleVariant {...props} variant="Default" />;');
+    expect(out).toContain('export const Default = withDatasourceCheck()<GridModuleProps>(renderDefault);');
+    expect(out).toContain('export const ThreeCard = withDatasourceCheck()<GridModuleProps>(renderThreeCard);');
+    expect(out).not.toContain('export default');
+  });
+
+  it('emits plain variant exports when datasource check is disabled', () => {
+    const out = renderComponentFile(variantContract, {
+      propsImport: 'lib/component-props',
+      sitecorePackage: '@sitecore-content-sdk/nextjs',
+      useDatasourceCheck: false,
+      styling: 'none',
+      variants: ['Default', 'ThreeCard'],
+    });
+    expect(out).toContain('export const Default = (props: GridModuleProps) => <GridModuleVariant {...props} variant="Default" />;');
+    expect(out).toContain('export const ThreeCard = (props: GridModuleProps) => <GridModuleVariant {...props} variant="ThreeCard" />;');
+    expect(out).not.toContain('withDatasourceCheck');
+  });
+
+  it('renders a single default-export component when no variants are given', () => {
+    const out = renderComponentFile(variantContract, {
+      propsImport: 'lib/component-props',
+      sitecorePackage: '@sitecore-content-sdk/nextjs',
+      useDatasourceCheck: true,
+      styling: 'none',
+    });
+    expect(out).toContain('export default withDatasourceCheck()<GridModuleProps>(GridModule);');
+    expect(out).not.toContain('Variant');
+  });
 });

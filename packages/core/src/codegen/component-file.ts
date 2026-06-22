@@ -8,6 +8,7 @@ interface ComponentOptions {
   sitecorePackage: string;
   useDatasourceCheck: boolean;
   styling: StylingMode;
+  variants?: string[];
 }
 
 const IMPORT_ALIAS: Record<string, string> = {
@@ -105,6 +106,36 @@ export function renderComponentFile(c: ComponentContract, opts: ComponentOptions
   const sectionAttrs = hasParams
     ? ' ' + c.params.map((p) => `data-${toKebabAttr(p)}={${optionalAccess('params', p)}}`).join(' ')
     : '';
+
+  const variants = opts.variants ?? [];
+  if (variants.length > 0) {
+    const innerDestructured = ['fields'];
+    if (hasParams) innerDestructured.push('params');
+    if (hasPlaceholders) innerDestructured.push('rendering');
+    innerDestructured.push('variant');
+    const innerPropsArg = `{ ${innerDestructured.join(', ')} }`;
+
+    const innerComponent = `const ${c.name}Variant = (${innerPropsArg}: ${c.name}Props & { variant: string }) => {
+  // TODO: branch on \`variant\` to change layout/markup per variant
+  return (
+    <section${style.root} data-variant={variant}${sectionAttrs}>
+${body}
+    </section>
+  );
+};`;
+
+    const wrappers = variants
+      .map((v) => {
+        if (opts.useDatasourceCheck) {
+          return `const render${v} = (props: ${c.name}Props) => <${c.name}Variant {...props} variant="${v}" />;
+export const ${v} = withDatasourceCheck()<${c.name}Props>(render${v});`;
+        }
+        return `export const ${v} = (props: ${c.name}Props) => <${c.name}Variant {...props} variant="${v}" />;`;
+      })
+      .join('\n\n');
+
+    return `${imports}\n\n${innerComponent}\n\n${wrappers}\n`;
+  }
 
   const destructured = ['fields'];
   if (hasParams) destructured.push('params');
