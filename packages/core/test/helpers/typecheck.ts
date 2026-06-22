@@ -48,7 +48,7 @@ export function typecheckComponents(components: CompileComponent[]): string[] {
     noEmit: true,
     target: ts.ScriptTarget.ES2020,
     module: ts.ModuleKind.ESNext,
-    moduleResolution: ts.ModuleResolutionKind.Node10,
+    moduleResolution: ts.ModuleResolutionKind.Node10, // Bundler/NodeNext don't resolve extensionless './Name.types' virtual imports here; Node10 does
     skipLibCheck: true,
   };
 
@@ -75,7 +75,9 @@ export function typecheckComponents(components: CompileComponent[]): string[] {
   // Without this, TS skips probing virtual directories during module resolution
   host.directoryExists = (dirName) => {
     const k = normKey(dirName);
-    if ([...virtual.keys()].some((key) => key.startsWith(k + '/'))) return true;
+    for (const key of virtual.keys()) {
+      if (key.startsWith(k + '/')) return true;
+    }
     return baseDirectoryExists ? baseDirectoryExists(dirName) : false;
   };
 
@@ -84,7 +86,7 @@ export function typecheckComponents(components: CompileComponent[]): string[] {
     const msg = ts.flattenDiagnosticMessageText(d.messageText, '\n');
     if (d.file && d.start !== undefined) {
       const { line, character } = d.file.getLineAndCharacterOfPosition(d.start);
-      return `${normKey(d.file.fileName)}(${line + 1},${character + 1}): ${msg}`;
+      return `${normSep(d.file.fileName)}(${line + 1},${character + 1}): ${msg}`;
     }
     return msg;
   });
