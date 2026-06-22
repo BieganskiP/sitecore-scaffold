@@ -12,7 +12,7 @@ Content SDK-ready Next.js components from it.
 ## Commands
 
     sitecore-scaffold inspect <route>
-    sitecore-scaffold component <Name> --route <route> [--lang <lang>] [--dry-run] [--force]
+    sitecore-scaffold component <Name> --route <route> [--lang <lang>] [--variants <A,B,C>] [--dry-run] [--force]
 
 `inspect` prints the rendering/placeholder tree for a route.
 `component` scaffolds `<Name>.tsx`, `<Name>.types.ts`, `<Name>.mock.json`, and
@@ -40,6 +40,25 @@ The `styling` config option controls component styles:
 Nested placeholders on a rendering are scaffolded as
 `<Placeholder name="<key>" rendering={rendering} />` (the component receives the
 `rendering` prop automatically).
+
+## Rendering variants
+
+Pass `--variants` to scaffold one module that exports several Content SDK
+variants of the same component:
+
+    sitecore-scaffold component GridModule --route /x --variants ThreeCard,FourCard,FiveCard
+
+- `Default` is always generated first (prepended if your list omits it); it is the
+  main variant.
+- Names are sanitized to valid PascalCase identifiers and de-duplicated.
+- The file holds a shared inner `<Name>Variant` with the inferred markup; each
+  export is a thin wrapper passing its `variant` name (and `data-variant` is set on
+  the root element). Branch on `variant` inside the inner component to diverge.
+- When a variant grows substantially different, move it to a sibling
+  `<Name><Variant>.tsx` that imports props from `./<Name>.types`, and re-export it
+  from the main module.
+
+Without `--variants`, a single default-export component is generated as before.
 
 ## Type inference (MVP 1)
 
