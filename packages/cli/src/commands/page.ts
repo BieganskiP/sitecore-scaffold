@@ -51,24 +51,13 @@ export async function runPage(input: PageInput, deps?: Partial<InspectDeps>): Pr
     groups.get(node.componentName)!.push(node);
   }
 
-  const codegenConfig = {
-    componentPath: config.componentPath,
-    componentFolder: config.componentFolder,
-    componentPropsImport: config.componentPropsImport,
-    sitecorePackage: config.sitecorePackage,
-    useDatasourceCheck: config.useDatasourceCheck,
-    generateMocks: config.generateMocks,
-    styling: config.styling,
-    fieldTypeOverrides: config.fieldTypeOverrides,
-  };
-
   const components: PageComponentResult[] = [];
   const warnings: string[] = [];
 
   for (const [name, nodes] of groups) {
     const merged = mergeContracts(nodes, config.fieldTypeOverrides);
     warnings.push(...merged.warnings);
-    const files = generateFiles(merged.contract, nodes[0], codegenConfig);
+    const files = generateFiles(merged.contract, nodes[0], config);
 
     if (input.dryRun) {
       components.push({ name, instanceCount: nodes.length, status: 'generated', files });

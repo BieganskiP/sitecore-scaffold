@@ -57,21 +57,7 @@ export async function runComponent(input: ComponentInput, deps?: Partial<Inspect
   const contract = buildContract(node, config.fieldTypeOverrides);
   const variants =
     input.variants && input.variants.length > 0 ? normalizeVariants(input.variants) : undefined;
-  const files = generateFiles(
-    contract,
-    node,
-    {
-      componentPath: config.componentPath,
-      componentFolder: config.componentFolder,
-      componentPropsImport: config.componentPropsImport,
-      sitecorePackage: config.sitecorePackage,
-      useDatasourceCheck: config.useDatasourceCheck,
-      generateMocks: config.generateMocks,
-      styling: config.styling,
-      fieldTypeOverrides: config.fieldTypeOverrides,
-    },
-    variants,
-  );
+  const files = generateFiles(contract, node, config, variants);
 
   if (input.dryRun) return { written: [], preview: files };
 

@@ -103,4 +103,25 @@ describe('runPage', () => {
       runPage({ route: undefined, lang: undefined, dryRun: false, force: false }, deps(makeConfig('/tmp/never'))),
     ).rejects.toThrow(/route/i);
   });
+
+  it('surfaces merge warnings for conflicting field types across instances', async () => {
+    const layout = {
+      sitecore: {
+        context: { pageState: 'normal', language: 'en' },
+        route: {
+          name: 'test',
+          placeholders: {
+            'headless-main': [
+              { uid: 'm1', componentName: 'Media', params: {}, fields: { asset: { value: { src: 'a.jpg' } } }, placeholders: {} },
+              { uid: 'm2', componentName: 'Media', params: {}, fields: { asset: { value: { href: '/x' } } }, placeholders: {} },
+            ],
+          },
+        },
+      },
+    };
+    const dir = mkdtempSync(join(tmpdir(), 'scaffold-page-warn-'));
+    const config = makeConfig(join(dir, 'components'));
+    const result = await runPage({ route: '/test', lang: undefined, dryRun: true, force: false }, deps(config, layout));
+    expect(result.warnings.join('\n')).toMatch(/Media\.asset.*conflicting/i);
+  });
 });
