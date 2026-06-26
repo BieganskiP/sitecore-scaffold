@@ -26,12 +26,15 @@ describe('runDictionary', () => {
   it('writes the keys file and the wrapper, sorted', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'scaffold-dict-'));
     const i18n = join(dir, 'i18n');
-    const result = await runDictionary({ lang: undefined, dryRun: false, force: false }, deps(makeConfig(i18n)));
+    const d = deps(makeConfig(i18n));
+    const result = await runDictionary({ lang: undefined, dryRun: false, force: false }, d);
 
     expect(result.warnings).toEqual([]);
     const keysFile = readFileSync(join(i18n, 'dictionary-keys.ts'), 'utf8');
     expect(keysFile.indexOf("'Home.Title'")).toBeLessThan(keysFile.indexOf("'Nav.Login'"));
     expect(existsSync(join(i18n, 'use-typed-t.ts'))).toBe(true);
+    // lang falls back to config.edge.defaultLanguage when not passed
+    expect(d.getDictionary).toHaveBeenCalledWith('en');
   });
 
   it('always overwrites the keys file but preserves a customized wrapper', async () => {
@@ -41,10 +44,12 @@ describe('runDictionary', () => {
     writeFileSync(join(i18n, 'dictionary-keys.ts'), '// stale', 'utf8');
     writeFileSync(join(i18n, 'use-typed-t.ts'), '// hand-edited', 'utf8');
 
-    await runDictionary({ lang: undefined, dryRun: false, force: false }, deps(makeConfig(i18n)));
+    const result = await runDictionary({ lang: undefined, dryRun: false, force: false }, deps(makeConfig(i18n)));
 
     expect(readFileSync(join(i18n, 'dictionary-keys.ts'), 'utf8')).not.toBe('// stale');
     expect(readFileSync(join(i18n, 'use-typed-t.ts'), 'utf8')).toBe('// hand-edited');
+    const wrapper = result.files.find((f) => f.path.endsWith('use-typed-t.ts'))!;
+    expect(wrapper.status).toBe('skipped');
   });
 
   it('overwrites the wrapper with --force', async () => {
