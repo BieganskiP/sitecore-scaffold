@@ -51,6 +51,22 @@ describe('EdgeClient.getLayout', () => {
 });
 
 describe('EdgeClient.getDictionary', () => {
+  it('returns all entries for a single-page dictionary', async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        data: { site: { siteInfo: { dictionary: {
+          results: [{ key: 'Nav.Login', value: 'Log in' }],
+          pageInfo: { endCursor: 'C1', hasNext: false },
+        } } } },
+      }),
+    });
+    const client = new EdgeClient(config, fetchMock as unknown as typeof fetch);
+    const entries = await client.getDictionary('en');
+    expect(entries).toEqual([{ key: 'Nav.Login', value: 'Log in' }]);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
   it('follows pagination and concatenates all entries', async () => {
     const page1 = {
       data: { site: { siteInfo: { dictionary: {

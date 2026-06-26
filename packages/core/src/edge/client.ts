@@ -86,7 +86,7 @@ export class EdgeClient {
       entries.push(...(dict?.results ?? []));
 
       const pageInfo = dict?.pageInfo;
-      after = pageInfo?.hasNext ? pageInfo.endCursor ?? null : null;
+      after = pageInfo?.hasNext && pageInfo.endCursor ? pageInfo.endCursor : null;
     } while (after !== null);
 
     return entries;
