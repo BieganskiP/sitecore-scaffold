@@ -1,6 +1,6 @@
 {
   "name": "sitecore-scaffold",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Inspect Sitecore Experience Edge route layout data and scaffold typed, Content SDK-ready Next.js components from it.",
   "type": "module",
   "bin": {
