@@ -73,4 +73,40 @@ describe('loadConfig', () => {
     expect(cfg.i18nPath).toBe('src/lib/i18n');
     expect(cfg.i18nPackage).toBe('next-localization');
   });
+
+  const BASE = `
+  componentPath: 'src/components', componentPropsImport: 'lib/component-props',
+  sitecorePackage: '@sitecore-content-sdk/nextjs', useDatasourceCheck: true, generateMocks: true, fieldTypeOverrides: {},`;
+
+  describe('auth modes', () => {
+    it('accepts a contextId-only edge config', async () => {
+      const p = writeConfig(dir, `export default {
+      edge: { contextId: 'ctx-abc', site: 'my-site', defaultLanguage: 'en' },${BASE}
+    };`);
+      const cfg = await loadConfig(p);
+      expect(cfg.edge.contextId).toBe('ctx-abc');
+      expect(cfg.edge.apiKey).toBeUndefined();
+    });
+
+    it('throws when neither contextId nor endpoint+apiKey is configured', async () => {
+      const p = writeConfig(dir, `export default {
+      edge: { site: 's', defaultLanguage: 'en' },${BASE}
+    };`);
+      await expect(loadConfig(p)).rejects.toThrow(/SITECORE_EDGE_CONTEXT_ID/);
+    });
+
+    it('throws when both contextId and apiKey auth are configured', async () => {
+      const p = writeConfig(dir, `export default {
+      edge: { contextId: 'ctx-abc', endpoint: 'https://edge.example', apiKey: 'k', site: 's', defaultLanguage: 'en' },${BASE}
+    };`);
+      await expect(loadConfig(p)).rejects.toThrow(/one auth mode/i);
+    });
+
+    it('throws when endpoint is set without apiKey', async () => {
+      const p = writeConfig(dir, `export default {
+      edge: { endpoint: 'https://edge.example', site: 's', defaultLanguage: 'en' },${BASE}
+    };`);
+      await expect(loadConfig(p)).rejects.toThrow(/edge\.apiKey/);
+    });
+  });
 });

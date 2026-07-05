@@ -26,8 +26,20 @@ export async function loadConfig(path: string): Promise<ScaffoldConfig> {
 
   assert(loaded && typeof loaded === 'object', 'Config must export a default object');
   assert(loaded.edge, 'Config is missing "edge" section');
-  assert(loaded.edge.endpoint, 'Config is missing "edge.endpoint" (check SITECORE_EDGE_URL env var)');
-  assert(loaded.edge.apiKey, 'Config is missing "edge.apiKey" (check SITECORE_EDGE_TOKEN env var)');
+  const hasContextId = Boolean(loaded.edge.contextId);
+  const hasLegacy = Boolean(loaded.edge.endpoint) || Boolean(loaded.edge.apiKey);
+  assert(
+    !(hasContextId && hasLegacy),
+    'Config sets both "edge.contextId" and "edge.endpoint"/"edge.apiKey" — choose one auth mode',
+  );
+  if (!hasContextId) {
+    assert(
+      hasLegacy,
+      'Config is missing auth: set "edge.contextId" (check SITECORE_EDGE_CONTEXT_ID env var) or "edge.endpoint" + "edge.apiKey"',
+    );
+    assert(loaded.edge.endpoint, 'Config is missing "edge.endpoint" (check SITECORE_EDGE_URL env var)');
+    assert(loaded.edge.apiKey, 'Config is missing "edge.apiKey" (check SITECORE_EDGE_TOKEN env var)');
+  }
   assert(loaded.edge.site, 'Config is missing "edge.site"');
   assert(loaded.edge.defaultLanguage, 'Config is missing "edge.defaultLanguage"');
   for (const field of REQUIRED_STRING_FIELDS) {
