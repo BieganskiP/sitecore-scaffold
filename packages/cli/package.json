@@ -1,10 +1,15 @@
 {
   "name": "sitecore-scaffold",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Inspect Sitecore Experience Edge route layout data and scaffold typed, Content SDK-ready Next.js components from it.",
   "type": "module",
-  "bin": { "sitecore-scaffold": "./dist/index.js" },
-  "files": ["dist", "README.md"],
+  "bin": {
+    "sitecore-scaffold": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "keywords": [
     "sitecore",
     "xm-cloud",
@@ -23,10 +28,23 @@
     "url": "git+https://github.com/BieganskiP/sitecore-scaffold.git",
     "directory": "packages/cli"
   },
-  "bugs": { "url": "https://github.com/BieganskiP/sitecore-scaffold/issues" },
-  "engines": { "node": ">=18" },
-  "publishConfig": { "access": "public" },
-  "scripts": { "build": "tsup", "prepublishOnly": "tsup" },
-  "dependencies": { "jiti": "^1.21.6" },
-  "devDependencies": { "@sitecore-scaffold/core": "*" }
+  "bugs": {
+    "url": "https://github.com/BieganskiP/sitecore-scaffold/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup",
+    "prepublishOnly": "tsup"
+  },
+  "dependencies": {
+    "jiti": "^1.21.6"
+  },
+  "devDependencies": {
+    "@sitecore-scaffold/core": "*"
+  }
 }

@@ -3,6 +3,11 @@
 Inspect Sitecore Experience Edge route layout data and scaffold typed,
 Content SDK-ready Next.js components from it.
 
+> **Disclaimer:** This tool was built with the help of AI. As such, it may
+> contain bugs or rough edges. That said, it has been reviewed, tested, and
+> verified by a human before release. Please report anything that looks off via
+> the [issue tracker](https://github.com/BieganskiP/sitecore-scaffold/issues).
+
 ## Install
 
 ```sh
