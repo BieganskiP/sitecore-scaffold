@@ -66,4 +66,9 @@ describe('runRoutes', () => {
     expect(count).toBe(0);
     expect(output).toBe('0 routes (lang: en)');
   });
+
+  it('orders by updated newest-first with nulls last when sort is updated', async () => {
+    const { output } = await runRoutes({ lang: undefined, filter: undefined, sort: 'updated', json: true }, deps());
+    expect(JSON.parse(output).map((r: RouteInfo) => r.routePath)).toEqual(['/products', '/', '/about']);
+  });
 });

@@ -3,6 +3,7 @@ import { runInspect } from './commands/inspect.js';
 import { runComponent } from './commands/component.js';
 import { runPage } from './commands/page.js';
 import { runDictionary } from './commands/dictionary.js';
+import { runRoutes } from './commands/routes.js';
 
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
@@ -66,6 +67,12 @@ async function main(): Promise<void> {
       process.stdout.write('\nWarnings:\n');
       for (const w of result.warnings) process.stdout.write(`  ${w}\n`);
     }
+    return;
+  }
+
+  if (args.command === 'routes') {
+    const result = await runRoutes({ lang: args.lang, filter: args.filter, sort: args.sort, json: args.json });
+    process.stdout.write(result.output + '\n');
     return;
   }
 

@@ -26,6 +26,7 @@ Content SDK-ready Next.js components from it.
     sitecore-scaffold inspect <route>
     sitecore-scaffold page <route> [--lang <lang>] [--dry-run] [--force]
     sitecore-scaffold dictionary [--lang <lang>] [--dry-run] [--force]
+    sitecore-scaffold routes [--lang <lang>] [--filter <substring>] [--sort path|updated] [--json]
     sitecore-scaffold component <Name> --route <route> [--lang <lang>] [--variants <A,B,C>] [--dry-run] [--force]
 
 `inspect` prints the rendering/placeholder tree for a route.
@@ -55,6 +56,14 @@ Use it at call sites as:
 
     const t = useTypedT();
     t(dictionaryKeys['Nav.Login']); // autocompleted; unknown keys are type errors
+
+`routes` lists every route the site exposes on Experience Edge — route path,
+item name, and last-updated date — so you can discover new pages without asking
+a Sitecore dev for URLs. `--filter <substring>` narrows by path
+(case-insensitive), `--sort updated` puts the newest pages first (default is by
+path), and `--json` emits `[{ routePath, name, updatedAt }]` for scripting.
+Zero matches is not an error: you get `0 routes (lang: xx)` (or `[]`) and exit
+code 0.
 
 ## Output location
 
