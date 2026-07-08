@@ -8,6 +8,19 @@ Content SDK-ready Next.js components from it.
 > verified by a human before release. Please report anything that looks off via
 > the [issue tracker](https://github.com/BieganskiP/headcore/issues).
 
+## Two ways to work
+
+- **Library** — add pre-built, copy-in components you own and edit:
+
+  ```sh
+  headcore list             # see available components
+  headcore info <Name>      # component details + how to model its Sitecore side
+  headcore add <Name>       # copy the component into your project + write SITECORE.md
+  ```
+
+- **Introspect** — generate code from a live Sitecore/Experience Edge instance
+  (see Commands below).
+
 ## Install
 
 ```sh
