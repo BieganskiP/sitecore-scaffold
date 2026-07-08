@@ -4,9 +4,21 @@ import { runComponent } from './commands/component.js';
 import { runPage } from './commands/page.js';
 import { runDictionary } from './commands/dictionary.js';
 import { runRoutes } from './commands/routes.js';
+import { runList } from './commands/list.js';
+import { runInfo } from './commands/info.js';
 
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
+
+  if (args.command === 'list') {
+    process.stdout.write(runList() + '\n');
+    return;
+  }
+
+  if (args.command === 'info') {
+    process.stdout.write(runInfo({ name: args.name }) + '\n');
+    return;
+  }
 
   if (args.command === 'inspect') {
     const out = await runInspect({ route: args.route, lang: args.lang });
