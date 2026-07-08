@@ -6,6 +6,7 @@ import { runDictionary } from './commands/dictionary.js';
 import { runRoutes } from './commands/routes.js';
 import { runList } from './commands/list.js';
 import { runInfo } from './commands/info.js';
+import { runAdd } from './commands/add.js';
 
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
@@ -17,6 +18,19 @@ async function main(): Promise<void> {
 
   if (args.command === 'info') {
     process.stdout.write(runInfo({ name: args.name }) + '\n');
+    return;
+  }
+
+  if (args.command === 'add') {
+    const result = await runAdd({ name: args.name, dryRun: args.dryRun, force: args.force });
+    if (args.dryRun) {
+      process.stdout.write('Would write:\n');
+      for (const p of result.preview) process.stdout.write(`  ${p}\n`);
+      return;
+    }
+    process.stdout.write(`Added ${args.name} — ${result.written.length} file(s):\n`);
+    for (const p of result.written) process.stdout.write(`  ${p}\n`);
+    process.stdout.write('\nNext: follow the SITECORE.md in the component folder to model the Sitecore side.\n');
     return;
   }
 
