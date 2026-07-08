@@ -46,6 +46,6 @@
     "jiti": "^1.21.6"
   },
   "devDependencies": {
-    "@sitecore-scaffold/core": "*"
+    "headcore-core": "*"
   }
 }

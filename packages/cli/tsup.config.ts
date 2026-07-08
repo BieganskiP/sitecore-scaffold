@@ -9,5 +9,5 @@ export default defineConfig({
   // self-contained. jiti and dotenv stay external and are declared as runtime
   // dependencies — inlining a CJS dep like dotenv into the ESM bundle breaks
   // its require() calls at startup (see test/dist-smoke.test.ts).
-  noExternal: [/^@sitecore-scaffold\/core/],
+  noExternal: [/^headcore-core/],
 });

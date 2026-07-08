@@ -1,4 +1,4 @@
-import { loadConfig as defaultLoadConfig, EdgeClient, parseLayout, formatTree } from '@sitecore-scaffold/core';
+import { loadConfig as defaultLoadConfig, EdgeClient, parseLayout, formatTree } from 'headcore-core';
 
 export interface InspectDeps {
   loadConfig: typeof defaultLoadConfig;

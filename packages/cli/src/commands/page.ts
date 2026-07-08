@@ -9,7 +9,7 @@ import {
   generateFiles,
   type RenderingNode,
   type GeneratedFile,
-} from '@sitecore-scaffold/core';
+} from 'headcore-core';
 import type { InspectDeps } from './inspect.js';
 
 export interface PageInput {

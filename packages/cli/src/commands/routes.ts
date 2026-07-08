@@ -9,7 +9,7 @@ import {
   renderRoutesJson,
   type RouteInfo,
   type RouteSort,
-} from '@sitecore-scaffold/core';
+} from 'headcore-core';
 
 export interface RoutesDeps {
   loadConfig: typeof defaultLoadConfig;

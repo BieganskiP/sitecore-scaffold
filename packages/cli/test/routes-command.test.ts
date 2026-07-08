@@ -3,7 +3,7 @@ import { mkdtempSync, readFileSync, writeFileSync, rmSync, existsSync } from 'no
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { runRoutes } from '../src/commands/routes.js';
-import type { RouteInfo } from '@sitecore-scaffold/core';
+import type { RouteInfo } from 'headcore-core';
 
 const config = {
   edge: { endpoint: 'https://e', apiKey: 'k', site: 's', defaultLanguage: 'en' },

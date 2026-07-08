@@ -8,7 +8,7 @@ import {
   renderTypedTFile,
   type DictionaryEntry,
   type GeneratedFile,
-} from '@sitecore-scaffold/core';
+} from 'headcore-core';
 
 export interface DictionaryDeps {
   loadConfig: typeof defaultLoadConfig;
