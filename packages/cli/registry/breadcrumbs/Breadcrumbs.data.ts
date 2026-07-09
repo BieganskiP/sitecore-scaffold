@@ -16,7 +16,7 @@ query BreadcrumbsQuery($itemId: String!, $language: String!) {
 }
 `;
 
-const EDGE_URL = 'https://edge-platform.sitecorecloud.io/v1/content/api/graphql/v1';
+export const EDGE_URL = 'https://edge-platform.sitecorecloud.io/v1/content/api/graphql/v1';
 
 type EdgeBreadcrumbItem = {
   name: string;
@@ -57,7 +57,10 @@ export const getComponentServerProps: GetComponentServerProps = async (
     console.warn('Breadcrumbs: SITECORE_EDGE_CONTEXT_ID is not set.');
     return empty;
   }
-  if (!itemId || !language) return empty;
+  if (!itemId || !language) {
+    console.warn('Breadcrumbs: missing itemId or language in layout data.');
+    return empty;
+  }
 
   try {
     const res = await fetch(`${EDGE_URL}?sitecore_contextid=${contextId}`, {

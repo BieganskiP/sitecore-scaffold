@@ -32,7 +32,7 @@ const Breadcrumbs = ({ rendering, crumbs }: BreadcrumbsProps) => {
     <nav aria-label="Breadcrumb" className={styles.root}>
       <ol className={styles.list}>
         {trail.map((crumb, i) => (
-          <li key={crumb.href} className={styles.item}>
+          <li key={i} className={styles.item}>
             {i === last ? (
               <span aria-current="page" className={styles.current}>
                 {crumb.label}
@@ -47,7 +47,9 @@ const Breadcrumbs = ({ rendering, crumbs }: BreadcrumbsProps) => {
       </ol>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c').replace(/>/g, '\\u003e'),
+        }}
       />
     </nav>
   );
