@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { listComponents, readComponentManifest, readComponentFiles } from '../src/registry.js';
+import { listComponents, readComponentManifest, readComponentFiles, resolveComponentNames } from '../src/registry.js';
 
 // packages/cli/registry, resolved relative to this test file (cwd-independent).
 const REGISTRY_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', 'registry');
@@ -61,8 +61,28 @@ describe('registry access', () => {
   it('every registry component lists files that exist on disk', () => {
     for (const c of listComponents()) {
       const files = readComponentFiles(c.name);
-      expect(files.length).toBe(c.files.length);
+      expect(files.map((f) => f.file)).toEqual(c.files);
     }
+  });
+
+  it('reads the Accordion manifest with the AllowMultiple checkbox param', () => {
+    const m = readComponentManifest('accordion');
+    expect(m.name).toBe('Accordion');
+    expect(m.registryDependencies).toEqual(['accordion-item']);
+    expect(m.sitecore.template.fields).toEqual([]);
+    const ph = m.sitecore.placeholders.find((p) => p.key === 'headcore-accordion');
+    expect(ph?.allowedRenderings).toEqual(['AccordionItem']);
+    expect(m.sitecore.params).toEqual([
+      {
+        name: 'AllowMultiple',
+        type: 'Checkbox',
+        description: 'Allow multiple panels to be open at once (default: one at a time).',
+      },
+    ]);
+  });
+
+  it('resolves Accordion to AccordionItem then Accordion', () => {
+    expect(resolveComponentNames('Accordion')).toEqual(['AccordionItem', 'Accordion']);
   });
 
   it('resolves a hyphenated folder from the canonical PascalCase name', () => {
