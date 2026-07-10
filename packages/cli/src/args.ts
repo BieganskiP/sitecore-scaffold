@@ -1,5 +1,5 @@
 export interface ParsedArgs {
-  command: 'inspect' | 'component' | 'page' | 'dictionary' | 'routes' | 'list' | 'info' | 'add';
+  command: 'inspect' | 'component' | 'page' | 'dictionary' | 'routes' | 'list' | 'info' | 'add' | 'init';
   name: string | undefined;
   route: string | undefined;
   lang: string | undefined;
@@ -13,6 +13,9 @@ export interface ParsedArgs {
 }
 
 const USAGE = `usage:
+
+Setup:
+  headcore init [--force] [--dry-run]
 
 Library:
   headcore list
@@ -32,7 +35,7 @@ export function parseArgs(argv: string[]): ParsedArgs {
   if (
     command !== 'inspect' && command !== 'component' && command !== 'page' &&
     command !== 'dictionary' && command !== 'routes' &&
-    command !== 'list' && command !== 'info' && command !== 'add'
+    command !== 'list' && command !== 'info' && command !== 'add' && command !== 'init'
   ) {
     throw new Error(`unknown command "${command}"\n${USAGE}`);
   }
@@ -72,7 +75,7 @@ export function parseArgs(argv: string[]): ParsedArgs {
 
   if (
     command === 'inspect' || command === 'page' || command === 'dictionary' ||
-    command === 'routes' || command === 'list'
+    command === 'routes' || command === 'list' || command === 'init'
   ) {
     return { command, name: undefined, route: positionals[0], lang, dryRun, force, variants, filter, sort, json, out };
   }

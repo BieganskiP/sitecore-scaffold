@@ -26,6 +26,21 @@ describe('parseArgs', () => {
     expect(parseArgs(['component', 'GridModule', '--route', '/x']).variants).toEqual([]);
   });
 
+  it('parses the init command with flags', () => {
+    expect(parseArgs(['init', '--force', '--dry-run'])).toEqual({
+      command: 'init', name: undefined, route: undefined,
+      lang: undefined, dryRun: true, force: true, variants: [],
+      filter: undefined, sort: 'path', json: false, out: undefined,
+    });
+  });
+
+  it('parses the init command with no flags', () => {
+    const parsed = parseArgs(['init']);
+    expect(parsed.command).toBe('init');
+    expect(parsed.dryRun).toBe(false);
+    expect(parsed.force).toBe(false);
+  });
+
   it('throws on unknown command', () => {
     expect(() => parseArgs(['frobnicate'])).toThrow(/unknown command/i);
   });

@@ -7,9 +7,23 @@ import { runRoutes } from './commands/routes.js';
 import { runList } from './commands/list.js';
 import { runInfo } from './commands/info.js';
 import { runAdd } from './commands/add.js';
+import { runInit } from './commands/init.js';
 
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
+
+  if (args.command === 'init') {
+    const result = runInit({ dryRun: args.dryRun, force: args.force });
+    if (args.dryRun) {
+      process.stdout.write(`Would write ${result.path}\n`);
+      return;
+    }
+    process.stdout.write(`Wrote ${result.path}\n\nNext:\n`);
+    process.stdout.write('  1. Set SITECORE_EDGE_CONTEXT_ID in .env.local next to the config\n');
+    process.stdout.write('     (or switch to legacy edge.endpoint + edge.apiKey auth).\n');
+    process.stdout.write('  2. Set edge.site and edge.defaultLanguage in the config.\n');
+    return;
+  }
 
   if (args.command === 'list') {
     process.stdout.write(runList() + '\n');

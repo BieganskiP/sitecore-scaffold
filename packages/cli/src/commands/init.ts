@@ -1,5 +1,25 @@
-// Copy to headcore.config.ts and fill in. Secrets come from env vars
-// (.env.local and .env next to this file are loaded automatically; shell env wins).
+import { existsSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+export interface InitInput {
+  dryRun: boolean;
+  force: boolean;
+  /** Directory to write the config into. Defaults to process.cwd(). */
+  cwd?: string;
+}
+
+export interface InitResult {
+  /** Absolute path of the config file. */
+  path: string;
+  /** False on --dry-run, true when the file was written. */
+  written: boolean;
+}
+
+const CONFIG_FILENAME = 'headcore.config.ts';
+
+/** Keep in sync with headcore.config.example.ts at the repo root. */
+const CONFIG_TEMPLATE = `// headcore config. Secrets come from env vars (.env.local and .env next to
+// this file are loaded automatically; shell env wins).
 export default {
   edge: {
     // Modern XM Cloud (Content SDK) auth — the Edge Context ID:
@@ -21,3 +41,18 @@ export default {
   i18nPath: 'src/lib/i18n', // where dictionary-keys.ts and use-typed-t.ts are written
   i18nPackage: 'next-localization', // provides useI18n() for the typed t wrapper
 };
+`;
+
+export function runInit(input: InitInput): InitResult {
+  const cwd = input.cwd ?? process.cwd();
+  const path = join(cwd, CONFIG_FILENAME);
+
+  if (input.dryRun) {
+    return { path, written: false };
+  }
+  if (!input.force && existsSync(path)) {
+    throw new Error(`${path} already exists. Use --force to overwrite or --dry-run to preview.`);
+  }
+  writeFileSync(path, CONFIG_TEMPLATE, 'utf8');
+  return { path, written: true };
+}

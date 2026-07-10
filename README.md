@@ -77,7 +77,8 @@ npx headcore list
 
 Required for `add` and all introspect commands (`list`/`info` do not need it):
 
-1. Copy `headcore.config.example.ts` to `headcore.config.ts`.
+1. Run `npx headcore init` to create a starter `headcore.config.ts` in your
+   project root (`--dry-run` previews, `--force` overwrites).
 2. Configure auth (env vars are read from `.env.local`/`.env` next to the
    config file automatically; shell env takes precedence):
    - **XM Cloud (Content SDK):** set `SITECORE_EDGE_CONTEXT_ID` and use
@@ -152,8 +153,8 @@ The `styling` config option controls **introspect-generated** component styles:
 - `tailwind` — emit Tailwind utility classes inline; no CSS file.
 - `none` — plain class names, no stylesheet.
 
-(Copy-in Library components ship their own CSS Modules; the `styling` option does
-not yet transform them.)
+(Copy-in Library components ship with inline Tailwind utility classes; the
+`styling` option does not transform them.)
 
 ## Placeholders
 

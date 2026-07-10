@@ -39,7 +39,8 @@ npx headcore inspect <route>
 
 ## Setup
 
-1. Copy `headcore.config.example.ts` to `headcore.config.ts`.
+1. Run `headcore init` to create a starter `headcore.config.ts` in your
+   project root (`--dry-run` previews, `--force` overwrites).
 2. Configure auth (env vars are read from `.env.local`/`.env` next to the
    config file automatically; shell env takes precedence):
    - **XM Cloud (Content SDK):** set `SITECORE_EDGE_CONTEXT_ID` and use
@@ -53,6 +54,7 @@ npx headcore inspect <route>
 ## Commands
 
 ```sh
+headcore init [--dry-run] [--force]
 headcore inspect <route>
 headcore page <route> [--lang <lang>] [--dry-run] [--force]
 headcore dictionary [--lang <lang>] [--dry-run] [--force]
