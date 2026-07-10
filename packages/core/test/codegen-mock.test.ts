@@ -54,6 +54,33 @@ describe('renderMockFile', () => {
     expect(parsed.placeholders).toBeUndefined();
     expect(Object.keys(parsed)).toEqual(['fields', 'params']);
   });
+
+  it('filters out empty placeholder arrays and never emits child dataSource', () => {
+    const container: RenderingNode = {
+      componentName: 'Carousel',
+      fields: {},
+      params: {},
+      placeholders: {
+        empty: [],
+        'headcore-carousel': [
+          { componentName: 'CarouselSlide', dataSource: '/Data/Slide', fields: {}, params: {}, placeholders: {} },
+        ],
+      },
+    };
+    const parsed = JSON.parse(renderMockFile(container));
+    expect(Object.keys(parsed.placeholders)).toEqual(['headcore-carousel']);
+    expect(parsed.placeholders['headcore-carousel'][0].dataSource).toBeUndefined();
+  });
+
+  it('omits placeholders entirely when all arrays are empty', () => {
+    const container: RenderingNode = {
+      componentName: 'Tabs',
+      fields: {},
+      params: {},
+      placeholders: { 'headcore-tabs': [] },
+    };
+    expect(JSON.parse(renderMockFile(container)).placeholders).toBeUndefined();
+  });
 });
 
 describe('generateFiles', () => {
