@@ -2,6 +2,7 @@ import { relative, resolve } from 'node:path';
 
 /** The subset of a mock's placeholder tree the story renderer needs. */
 export interface StoryMockNode {
+  /** MUST be a valid PascalCase JS identifier — emitted verbatim as an import name and map key. */
   componentName: string;
   placeholders?: Record<string, StoryMockNode[]>;
 }
