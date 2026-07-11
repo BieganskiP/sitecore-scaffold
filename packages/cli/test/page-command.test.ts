@@ -104,6 +104,22 @@ describe('runPage', () => {
     ).rejects.toThrow(/route/i);
   });
 
+  it('writes the decorator once and reports it in extraFiles when storybook is enabled', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'scaffold-page-sb-'));
+    const config = {
+      ...makeConfig(join(dir, 'components')),
+      storybook: { enabled: true, titlePrefix: 'Sitecore', decoratorPath: join(dir, '.storybook/sitecore-decorator.tsx') },
+    };
+    const result = await runPage(
+      { route: '/about-us', lang: undefined, dryRun: false, force: false },
+      deps(config),
+    );
+    expect(existsSync(join(dir, '.storybook', 'sitecore-decorator.tsx'))).toBe(true);
+    expect(result.extraFiles.map((f) => f.path)).toEqual([join(dir, '.storybook/sitecore-decorator.tsx')]);
+    const storyFiles = result.components.flatMap((c) => c.files).filter((f) => f.path.endsWith('.stories.tsx'));
+    expect(storyFiles.length).toBeGreaterThan(0);
+  });
+
   it('surfaces merge warnings for conflicting field types across instances', async () => {
     const layout = {
       sitecore: {

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { readFileSync, mkdtempSync, existsSync, readFileSync as rf } from 'node:fs';
+import { readFileSync, mkdtempSync, existsSync, readFileSync as rf, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -73,6 +73,37 @@ describe('runComponent', () => {
     expect(tsx).toContain('export const Default =');
     expect(tsx).toContain('export const ThreeCard =');
     expect(tsx).not.toContain('export default');
+  });
+
+  it('writes story, mock, and decorator when storybook is enabled', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'scaffold-sb-'));
+    const config = {
+      ...makeConfig(join(dir, 'components')),
+      generateMocks: false,
+      storybook: { enabled: true, titlePrefix: 'Sitecore', decoratorPath: join(dir, '.storybook/sitecore-decorator.tsx') },
+    };
+    const result = await runComponent(
+      { name: 'Hero', route: '/about-us', lang: undefined, dryRun: false, force: false },
+      { loadConfig: vi.fn().mockResolvedValue(config), getLayout: vi.fn().mockResolvedValue(rendered) },
+    );
+    expect(existsSync(join(dir, 'components', 'Hero.stories.tsx'))).toBe(true);
+    expect(existsSync(join(dir, 'components', 'Hero.mock.json'))).toBe(true);
+    expect(existsSync(join(dir, '.storybook', 'sitecore-decorator.tsx'))).toBe(true);
+    expect(result.written.some((f) => f.path.endsWith('sitecore-decorator.tsx'))).toBe(true);
+  });
+
+  it('does not overwrite an existing decorator, even with --force', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'scaffold-sb2-'));
+    const decoratorPath = join(dir, '.storybook/sitecore-decorator.tsx');
+    const config = {
+      ...makeConfig(join(dir, 'components')),
+      storybook: { enabled: true, titlePrefix: 'Sitecore', decoratorPath },
+    };
+    const deps = { loadConfig: vi.fn().mockResolvedValue(config), getLayout: vi.fn().mockResolvedValue(rendered) };
+    await runComponent({ name: 'Hero', route: '/about-us', lang: undefined, dryRun: false, force: false }, deps);
+    writeFileSync(decoratorPath, '// user edited\n', 'utf8');
+    await runComponent({ name: 'Hero', route: '/about-us', lang: undefined, dryRun: false, force: true }, deps);
+    expect(rf(decoratorPath, 'utf8')).toBe('// user edited\n');
   });
 
   it('errors with ambiguous when multiple renderings share the same componentName', async () => {

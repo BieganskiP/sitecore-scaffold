@@ -61,6 +61,7 @@ async function main(): Promise<void> {
       for (const c of result.components) {
         for (const f of c.files) process.stdout.write(`\n--- ${f.path} ---\n${f.contents}`);
       }
+      for (const f of result.extraFiles) process.stdout.write(`\n--- ${f.path} ---\n${f.contents}`);
       return;
     }
 
@@ -79,6 +80,7 @@ async function main(): Promise<void> {
       process.stdout.write('Skipped (already exist, use --force):\n');
       for (const c of skipped) process.stdout.write(`  ${c.name}\n`);
     }
+    for (const f of result.extraFiles) process.stdout.write(`Also wrote ${f.path}\n`);
     if (result.warnings.length > 0) {
       process.stdout.write('\nWarnings:\n');
       for (const w of result.warnings) process.stdout.write(`  ${w}\n`);

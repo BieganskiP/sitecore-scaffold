@@ -12,6 +12,7 @@ import {
 } from 'headcore-core';
 import type { InspectDeps } from './inspect.js';
 import { resolveCliConfigPath } from '../config-path.js';
+import { decoratorOutput } from '../storybook.js';
 
 export interface ComponentInput {
   name: string | undefined;
@@ -57,6 +58,8 @@ export async function runComponent(input: ComponentInput, deps?: Partial<Inspect
   const variants =
     input.variants && input.variants.length > 0 ? normalizeVariants(input.variants) : undefined;
   const files = generateFiles(contract, node, config, variants);
+  const decorator = decoratorOutput(config);
+  if (decorator) files.push(decorator);
 
   if (input.dryRun) return { written: [], preview: files };
 

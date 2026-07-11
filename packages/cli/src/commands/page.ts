@@ -12,6 +12,7 @@ import {
 } from 'headcore-core';
 import type { InspectDeps } from './inspect.js';
 import { resolveCliConfigPath } from '../config-path.js';
+import { decoratorOutput } from '../storybook.js';
 
 export interface PageInput {
   route: string | undefined;
@@ -31,6 +32,7 @@ export interface PageResult {
   route: string;
   components: PageComponentResult[];
   warnings: string[];
+  extraFiles: GeneratedFile[];
 }
 
 export async function runPage(input: PageInput, deps?: Partial<InspectDeps>): Promise<PageResult> {
@@ -75,5 +77,12 @@ export async function runPage(input: PageInput, deps?: Partial<InspectDeps>): Pr
     components.push({ name, instanceCount: nodes.length, status: 'generated', files });
   }
 
-  return { route: input.route, components, warnings };
+  const decorator = decoratorOutput(config);
+  const extraFiles = decorator ? [decorator] : [];
+  if (!input.dryRun && decorator) {
+    mkdirSync(dirname(decorator.path), { recursive: true });
+    writeFileSync(decorator.path, decorator.contents, 'utf8');
+  }
+
+  return { route: input.route, components, warnings, extraFiles };
 }
