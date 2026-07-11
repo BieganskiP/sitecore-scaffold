@@ -2,7 +2,9 @@ import type { ComponentContract, GeneratedFile, RenderingNode, HeadcoreConfig } 
 import { renderTypesFile } from './types-file.js';
 import { renderComponentFile } from './component-file.js';
 import { renderMockFile } from './mock-file.js';
+import { renderStoryFile } from './story-file.js';
 import { createStyleHelper } from './styling.js';
+import { resolveStorybook } from '../config/storybook.js';
 
 type CodegenConfig = Omit<HeadcoreConfig, 'edge'>;
 
@@ -29,8 +31,20 @@ export function generateFiles(
       }),
     },
   ];
-  if (config.generateMocks) {
+  const storybook = resolveStorybook(config);
+  if (config.generateMocks || storybook.enabled) {
     files.push({ path: `${base}.mock.json`, contents: renderMockFile(node) });
+  }
+  if (storybook.enabled) {
+    files.push({
+      path: `${base}.stories.tsx`,
+      contents: renderStoryFile(contract.name, node.placeholders, {
+        componentPath: config.componentPath,
+        componentFolder: config.componentFolder,
+        titlePrefix: storybook.titlePrefix,
+        decoratorPath: storybook.decoratorPath,
+      }),
+    });
   }
   const style = createStyleHelper(contract.name, config.styling);
   if (style.cssFile) {
