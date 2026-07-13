@@ -18,6 +18,12 @@ export interface StorybookConfig {
   titlePrefix: string;
   /** Project-relative path of the shared Storybook decorator file (written once, never overwritten). */
   decoratorPath: string;
+  /**
+   * Package the story's `Meta`/`StoryObj` type imports come from. Must be the
+   * project's Storybook framework package (importing the bare renderer trips
+   * eslint `storybook/no-renderer-packages`).
+   */
+  framework: string;
 }
 
 export interface HeadcoreConfig {

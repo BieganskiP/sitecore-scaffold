@@ -75,6 +75,12 @@ export async function loadConfig(path: string): Promise<HeadcoreConfig> {
         'Config "storybook.decoratorPath" must be a non-empty string',
       );
     }
+    if (sb.framework !== undefined) {
+      assert(
+        typeof sb.framework === 'string' && sb.framework.length > 0,
+        'Config "storybook.framework" must be a non-empty string',
+      );
+    }
   }
 
   return {

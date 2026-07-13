@@ -8,19 +8,28 @@ const baseConfig = {
   componentFolder: true,
   titlePrefix: 'Sitecore',
   decoratorPath: '.storybook/sitecore-decorator.tsx',
+  framework: '@storybook/nextjs',
 };
 
 describe('renderStoryFile', () => {
   it('renders a leaf-component story with no component map', () => {
     const out = renderStoryFile('Tab', undefined, baseConfig);
-    expect(out).toContain("import type { Meta, StoryObj } from '@storybook/react';");
+    expect(out).toContain("import type { Meta, StoryObj } from '@storybook/nextjs';");
+    expect(out).not.toContain('@storybook/react'); // renderer imports trip eslint storybook/no-renderer-packages
     expect(out).toContain("import Tab from './Tab';");
     expect(out).toContain("import mock from './Tab.mock.json';");
     expect(out).toContain("import { withSitecore } from '../../../../.storybook/sitecore-decorator';");
     expect(out).toContain("title: 'Sitecore/Tab',");
     expect(out).toContain('decorators: [withSitecore()],');
     expect(out).toContain('satisfies Meta<typeof Tab>');
-    expect(out).toContain("args: { ...mock, rendering: { componentName: 'Tab', dataSource: 'storybook', ...mock } },");
+    expect(out).toContain(
+      "args: { ...mock, rendering: { componentName: 'Tab', dataSource: 'storybook', ...mock } } as unknown as StoryObj<typeof meta>['args'],",
+    );
+  });
+
+  it('imports story types from the configured framework package', () => {
+    const out = renderStoryFile('Tab', undefined, { ...baseConfig, framework: '@storybook/react-vite' });
+    expect(out).toContain("import type { Meta, StoryObj } from '@storybook/react-vite';");
   });
 
   it('imports placeholder children as siblings and passes a component map', () => {
@@ -113,6 +122,7 @@ describe('generateFiles with storybook', () => {
     expect(paths).toContain('src/components/Hero.mock.json');
     const story = files.find((f) => f.path.endsWith('.stories.tsx'))!.contents;
     expect(story).toContain("title: 'Sitecore/Hero',");
+    expect(story).toContain("from '@storybook/nextjs';"); // framework default flows through generateFiles
   });
 
   it('emits no story when storybook is absent or disabled', () => {

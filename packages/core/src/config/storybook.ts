@@ -6,5 +6,6 @@ export function resolveStorybook(config: Pick<HeadcoreConfig, 'storybook'>): Sto
     enabled: config.storybook?.enabled ?? false,
     titlePrefix: config.storybook?.titlePrefix ?? 'Sitecore',
     decoratorPath: config.storybook?.decoratorPath ?? '.storybook/sitecore-decorator.tsx',
+    framework: config.storybook?.framework ?? '@storybook/nextjs',
   };
 }

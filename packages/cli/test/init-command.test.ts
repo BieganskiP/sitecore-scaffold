@@ -74,6 +74,7 @@ describe('runInit', () => {
     expect(written).toContain('// storybook: {');
     expect(written).toContain('titlePrefix');
     expect(written).toContain('decoratorPath');
+    expect(written).toContain("framework: '@storybook/nextjs'");
   });
 
   it('stays in sync with headcore.config.example.ts at the repo root', () => {

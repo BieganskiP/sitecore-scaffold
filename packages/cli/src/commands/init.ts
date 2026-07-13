@@ -48,6 +48,7 @@ const headcoreConfig = {
   //   enabled: true,
   //   titlePrefix: 'Sitecore', // stories appear as "Sitecore/<Name>" ('' for bare names)
   //   decoratorPath: '.storybook/sitecore-decorator.tsx', // shared decorator, written once and never overwritten
+  //   framework: '@storybook/nextjs', // your Storybook framework package — Meta/StoryObj type import source
   // },
 };
 

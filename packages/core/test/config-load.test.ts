@@ -157,19 +157,21 @@ describe('loadConfig', () => {
         enabled: false,
         titlePrefix: 'Sitecore',
         decoratorPath: '.storybook/sitecore-decorator.tsx',
+        framework: '@storybook/nextjs',
       });
     });
 
     it('accepts a full storybook section', async () => {
       const p = writeConfig(dir, `export default {
       edge: { contextId: 'ctx', site: 's', defaultLanguage: 'en' },${BASE}
-      storybook: { enabled: true, titlePrefix: '', decoratorPath: 'src/stories/sitecore.tsx' },
+      storybook: { enabled: true, titlePrefix: '', decoratorPath: 'src/stories/sitecore.tsx', framework: '@storybook/react-vite' },
     };`);
       const cfg = await loadConfig(p);
       expect(cfg.storybook).toEqual({
         enabled: true,
         titlePrefix: '',
         decoratorPath: 'src/stories/sitecore.tsx',
+        framework: '@storybook/react-vite',
       });
     });
 
@@ -183,6 +185,7 @@ describe('loadConfig', () => {
         enabled: true,
         titlePrefix: 'Sitecore',
         decoratorPath: '.storybook/sitecore-decorator.tsx',
+        framework: '@storybook/nextjs',
       });
     });
 
@@ -208,6 +211,14 @@ describe('loadConfig', () => {
       storybook: { enabled: true, decoratorPath: '' },
     };`);
       await expect(loadConfig(p)).rejects.toThrow(/storybook\.decoratorPath/);
+    });
+
+    it('throws when storybook.framework is empty', async () => {
+      const p = writeConfig(dir, `export default {
+      edge: { contextId: 'ctx', site: 's', defaultLanguage: 'en' },${BASE}
+      storybook: { enabled: true, framework: '' },
+    };`);
+      await expect(loadConfig(p)).rejects.toThrow(/storybook\.framework/);
     });
   });
 });

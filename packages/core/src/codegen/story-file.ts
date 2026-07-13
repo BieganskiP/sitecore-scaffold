@@ -12,6 +12,8 @@ export interface StoryFileConfig {
   componentFolder: boolean;
   titlePrefix: string;
   decoratorPath: string;
+  /** Storybook framework package the `Meta`/`StoryObj` type imports come from. */
+  framework: string;
 }
 
 /** Escape a value for embedding in a single-quoted string literal. */
@@ -61,8 +63,10 @@ export function renderStoryFile(
 
   // `dataSource: 'storybook'` is placed before the mock spread so a mock's own
   // top-level dataSource wins. The synthetic value satisfies `withDatasourceCheck`,
-  // which renders null when dataSource is falsy outside editing mode.
-  return `import type { Meta, StoryObj } from '@storybook/react';
+  // which renders null when dataSource is falsy outside editing mode. The args
+  // are cast because mock JSON is real Edge content whose inferred literal types
+  // (nulls, plain objects) can't satisfy the SDK's branded field types.
+  return `import type { Meta, StoryObj } from '${config.framework}';
 import ${name} from './${name}';
 import mock from './${name}.mock.json';
 import { withSitecore } from '${decoratorImport}';
@@ -75,7 +79,7 @@ const meta = {
 export default meta;
 
 export const Default: StoryObj<typeof meta> = {
-  args: { ...mock, rendering: { componentName: '${name}', dataSource: 'storybook', ...mock } },
+  args: { ...mock, rendering: { componentName: '${name}', dataSource: 'storybook', ...mock } } as unknown as StoryObj<typeof meta>['args'],
 };
 `;
 }

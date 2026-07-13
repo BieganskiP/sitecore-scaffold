@@ -43,6 +43,7 @@ export function generateFiles(
         componentFolder: config.componentFolder,
         titlePrefix: storybook.titlePrefix,
         decoratorPath: storybook.decoratorPath,
+        framework: storybook.framework,
       }),
     });
   }

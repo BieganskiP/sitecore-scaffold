@@ -175,12 +175,16 @@ storybook: {
   enabled: true,
   titlePrefix: 'Sitecore',                            // stories appear as "Sitecore/<Name>"
   decoratorPath: '.storybook/sitecore-decorator.tsx', // shared decorator, written once
+  framework: '@storybook/nextjs',                     // your Storybook framework package (default)
 },
 ```
 
 headcore does **not** install Storybook — bring your own (the `@storybook/nextjs`
 framework is recommended for Content SDK projects, and `resolveJsonModule` must be
-on, as it is in the Content SDK starters). Enabling stories implies mock emission:
+on, as it is in the Content SDK starters). The story's `Meta`/`StoryObj` types are
+imported from `framework` — set it to your framework package (e.g.
+`@storybook/react-vite`); importing the bare `@storybook/react` renderer would trip
+Storybook's `no-renderer-packages` lint rule. Enabling stories implies mock emission:
 each story imports its component's `<Name>.mock.json` as args. Extra top-level keys
 in a mock (e.g. Breadcrumbs' `crumbs`) are passed through as story args. The shared
 decorator wraps stories in `SitecoreProvider` (never in editing mode) and takes a
