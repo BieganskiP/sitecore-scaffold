@@ -185,7 +185,10 @@ each story imports its component's `<Name>.mock.json` as args. Extra top-level k
 in a mock (e.g. Breadcrumbs' `crumbs`) are passed through as story args. The shared
 decorator wraps stories in `SitecoreProvider` (never in editing mode) and takes a
 component map so `<Placeholder>` children resolve — it's written only if missing,
-so it's yours to adapt to your SDK version.
+so it's yours to adapt to your SDK version. A container's story imports its child
+components as siblings (e.g. Carousel imports CarouselSlide), so generate the
+children too — `add` resolves registry dependencies automatically, but a single
+`component <Name>` run scaffolds only the named component.
 
 ## Placeholders
 

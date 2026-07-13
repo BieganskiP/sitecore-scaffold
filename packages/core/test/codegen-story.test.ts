@@ -68,6 +68,11 @@ describe('renderStoryFile', () => {
     const out = renderStoryFile('Nested', { slot: [{ componentName: 'Nested' }] }, baseConfig);
     expect(out).toContain('withSitecore()');
   });
+
+  it('escapes quotes and backslashes in the title prefix', () => {
+    const out = renderStoryFile('Tab', undefined, { ...baseConfig, titlePrefix: "Bob's \\ Kit" });
+    expect(out).toContain("title: 'Bob\\'s \\\\ Kit/Tab',");
+  });
 });
 
 const node: RenderingNode = {

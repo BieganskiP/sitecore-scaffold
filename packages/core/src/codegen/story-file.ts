@@ -14,6 +14,11 @@ export interface StoryFileConfig {
   decoratorPath: string;
 }
 
+/** Escape a value for embedding in a single-quoted string literal. */
+function quoteEscape(value: string): string {
+  return value.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+}
+
 /** Relative ESM import specifier from `fromDir` to `toFile` (extension stripped, posix slashes). */
 function relativeImport(fromDir: string, toFile: string): string {
   const raw = relative(resolve(fromDir), resolve(toFile))
@@ -51,7 +56,7 @@ export function renderStoryFile(
   const children = collectChildNames(mockPlaceholders).filter((child) => child !== name);
   const childPath = (child: string) => (config.componentFolder ? `../${child}/${child}` : `./${child}`);
   const childImports = children.map((c) => `import ${c} from '${childPath(c)}';\n`).join('');
-  const title = config.titlePrefix ? `${config.titlePrefix}/${name}` : name;
+  const title = quoteEscape(config.titlePrefix ? `${config.titlePrefix}/${name}` : name);
   const mapArg = children.length > 0 ? `{ ${children.join(', ')} }` : '';
 
   // `dataSource: 'storybook'` is placed before the mock spread so a mock's own
