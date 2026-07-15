@@ -252,4 +252,84 @@ describe('EdgeClient.getRoutes', () => {
     await expect(client.getRoutes('en')).rejects.toThrow(/401/);
     await expect(client.getRoutes('en')).rejects.not.toThrow(/secret-token/);
   });
+
+  it('does not request rendered layout by default', async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce({
+      ok: true,
+      json: async () => routesPage([{ routePath: '/' }], { endCursor: 'C1', hasNext: false }),
+    });
+    const client = new EdgeClient(config, fetchMock as unknown as typeof fetch);
+    const routes = await client.getRoutes('en');
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body as string).query).not.toContain('rendered');
+    expect(routes[0]).not.toHaveProperty('components');
+  });
+});
+
+describe('EdgeClient.getRoutes with components', () => {
+  function layout(names: Array<string | { name: string; children: string[] }>) {
+    return {
+      sitecore: {
+        route: {
+          placeholders: {
+            'headless-main': names.map((n) =>
+              typeof n === 'string'
+                ? { componentName: n, placeholders: {} }
+                : {
+                    componentName: n.name,
+                    placeholders: { inner: n.children.map((c) => ({ componentName: c, placeholders: {} })) },
+                  },
+            ),
+          },
+        },
+      },
+    };
+  }
+
+  function routesPageWithRendered(
+    results: Array<{ routePath: string; rendered: unknown }>,
+    pageInfo: { endCursor: string; hasNext: boolean },
+  ) {
+    return {
+      data: { site: { siteInfo: { routes: {
+        results: results.map((r) => ({
+          routePath: r.routePath,
+          route: { name: '', updated: null, rendered: r.rendered },
+        })),
+        pageInfo,
+      } } } },
+    };
+  }
+
+  it('requests rendered layout and returns unique component names per route', async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce({
+      ok: true,
+      json: async () => routesPageWithRendered(
+        [
+          { routePath: '/', rendered: layout([{ name: 'Hero', children: ['Card'] }, 'Card', 'RichText']) },
+          { routePath: '/about', rendered: layout(['RichText']) },
+        ],
+        { endCursor: 'C1', hasNext: false },
+      ),
+    });
+    const client = new EdgeClient(config, fetchMock as unknown as typeof fetch);
+    const routes = await client.getRoutes('en', { components: true });
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body as string).query).toContain('rendered');
+    expect(routes.map((r) => r.components)).toEqual([['Hero', 'Card', 'RichText'], ['RichText']]);
+  });
+
+  it('yields an empty components list when rendered is null or malformed', async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce({
+      ok: true,
+      json: async () => routesPageWithRendered(
+        [
+          { routePath: '/a', rendered: null },
+          { routePath: '/b', rendered: { unexpected: true } },
+        ],
+        { endCursor: 'C1', hasNext: false },
+      ),
+    });
+    const client = new EdgeClient(config, fetchMock as unknown as typeof fetch);
+    const routes = await client.getRoutes('en', { components: true });
+    expect(routes.map((r) => r.components)).toEqual([[], []]);
+  });
 });

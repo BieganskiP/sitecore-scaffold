@@ -14,3 +14,8 @@ export function collectRenderings(tree: RenderingTree): RenderingNode[] {
   walk(tree.placeholders);
   return acc;
 }
+
+/** Unique component names in a parsed layout tree, in depth-first appearance order. */
+export function collectComponentNames(tree: RenderingTree): string[] {
+  return [...new Set(collectRenderings(tree).map((n) => n.componentName))];
+}

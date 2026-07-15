@@ -59,6 +59,7 @@ headcore init [--dry-run] [--force]
 headcore inspect <route>
 headcore page <route> [--lang <lang>] [--dry-run] [--force]
 headcore dictionary [--lang <lang>] [--dry-run] [--force]
+headcore routes [--lang <lang>] [--filter <substring>] [--sort path|updated] [--components] [--tree [--tree-all]] [--json] [--out <file>]
 headcore component <Name> --route <route> [--lang <lang>] [--variants <A,B,C>] [--dry-run] [--force]
 ```
 
@@ -69,6 +70,11 @@ headcore component <Name> --route <route> [--lang <lang>] [--variants <A,B,C>] [
   types and merging inferred field shapes across all instances.
 - `dictionary` fetches the site dictionary from Experience Edge and generates
   type-safe translations (`dictionary-keys.ts` + a `useTypedT()` hook).
+- `routes` lists every route the site exposes on Experience Edge — path, item
+  name, last-updated date. `--components` also lists the unique component names
+  used on each page; `--json`/`--out <file>` emit the listing for scripting;
+  `--tree` renders the routes as a path hierarchy with per-branch page counts,
+  auto-collapsing big groups of sibling pages (`--tree-all` expands them).
 
 ## Storybook
 

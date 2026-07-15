@@ -78,3 +78,37 @@ describe('renderRoutesJson', () => {
     expect(renderRoutesJson([])).toBe('[]');
   });
 });
+
+const routesWithComponents: RouteInfo[] = [
+  { routePath: '/', name: 'Home', updatedAt: '2026-06-28', components: ['Hero', 'Card'] },
+  { routePath: '/about', name: 'About Us', updatedAt: null, components: [] },
+];
+
+describe('renderRoutesTable with components', () => {
+  it('lists component names indented under each route row', () => {
+    const lines = renderRoutesTable(routesWithComponents, 'en').split('\n');
+    expect(lines[0]).toMatch(/^ROUTE\s+NAME\s+UPDATED$/);
+    expect(lines[1]).toMatch(/^\/\s+Home\s+2026-06-28$/);
+    expect(lines[2]).toBe('    Hero, Card');
+    expect(lines[3]).toMatch(/^\/about\s+About Us$/);
+    expect(lines[4]).toBe('    (no components)');
+  });
+
+  it('keeps the count footer', () => {
+    expect(renderRoutesTable(routesWithComponents, 'en').endsWith('2 routes (lang: en)')).toBe(true);
+  });
+});
+
+describe('renderRoutesJson with components', () => {
+  it('includes the components array when present', () => {
+    expect(JSON.parse(renderRoutesJson(routesWithComponents))).toEqual([
+      { routePath: '/', name: 'Home', updatedAt: '2026-06-28', components: ['Hero', 'Card'] },
+      { routePath: '/about', name: 'About Us', updatedAt: null, components: [] },
+    ]);
+  });
+
+  it('omits components when not fetched', () => {
+    const parsed = JSON.parse(renderRoutesJson([{ routePath: '/', name: 'Home', updatedAt: null }]));
+    expect(parsed[0]).not.toHaveProperty('components');
+  });
+});

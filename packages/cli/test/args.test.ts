@@ -6,14 +6,14 @@ describe('parseArgs', () => {
     expect(parseArgs(['inspect', '/about-us'])).toEqual({
       command: 'inspect', name: undefined, route: '/about-us',
       lang: undefined, dryRun: false, force: false, variants: [],
-      filter: undefined, sort: 'path', json: false, out: undefined,
+      filter: undefined, sort: 'path', json: false, out: undefined, components: false, tree: false, treeAll: false,
     });
   });
 
   it('parses component command with name and flags', () => {
     expect(parseArgs(['component', 'Hero', '--route', '/about-us', '--lang', 'da', '--dry-run', '--force'])).toEqual({
       command: 'component', name: 'Hero', route: '/about-us', lang: 'da', dryRun: true, force: true, variants: [],
-      filter: undefined, sort: 'path', json: false, out: undefined,
+      filter: undefined, sort: 'path', json: false, out: undefined, components: false, tree: false, treeAll: false,
     });
   });
 
@@ -30,7 +30,7 @@ describe('parseArgs', () => {
     expect(parseArgs(['init', '--force', '--dry-run'])).toEqual({
       command: 'init', name: undefined, route: undefined,
       lang: undefined, dryRun: true, force: true, variants: [],
-      filter: undefined, sort: 'path', json: false, out: undefined,
+      filter: undefined, sort: 'path', json: false, out: undefined, components: false, tree: false, treeAll: false,
     });
   });
 
@@ -52,7 +52,7 @@ describe('parseArgs', () => {
   it('parses page command with route as a positional', () => {
     expect(parseArgs(['page', '/about-us', '--lang', 'da', '--dry-run'])).toEqual({
       command: 'page', name: undefined, route: '/about-us', lang: 'da', dryRun: true, force: false, variants: [],
-      filter: undefined, sort: 'path', json: false, out: undefined,
+      filter: undefined, sort: 'path', json: false, out: undefined, components: false, tree: false, treeAll: false,
     });
   });
 
@@ -60,7 +60,7 @@ describe('parseArgs', () => {
     expect(parseArgs(['dictionary', '--lang', 'da', '--dry-run', '--force'])).toEqual({
       command: 'dictionary', name: undefined, route: undefined,
       lang: 'da', dryRun: true, force: true, variants: [],
-      filter: undefined, sort: 'path', json: false, out: undefined,
+      filter: undefined, sort: 'path', json: false, out: undefined, components: false, tree: false, treeAll: false,
     });
   });
 
@@ -68,7 +68,7 @@ describe('parseArgs', () => {
     expect(parseArgs(['routes', '--lang', 'da', '--filter', '/products', '--sort', 'updated', '--json'])).toEqual({
       command: 'routes', name: undefined, route: undefined,
       lang: 'da', dryRun: false, force: false, variants: [],
-      filter: '/products', sort: 'updated', json: true, out: undefined,
+      filter: '/products', sort: 'updated', json: true, out: undefined, components: false, tree: false, treeAll: false,
     });
   });
 
@@ -78,6 +78,32 @@ describe('parseArgs', () => {
     expect(parsed.filter).toBeUndefined();
     expect(parsed.sort).toBe('path');
     expect(parsed.json).toBe(false);
+  });
+
+  it('parses --components on the routes command', () => {
+    expect(parseArgs(['routes', '--components']).components).toBe(true);
+  });
+
+  it('defaults components to false when the flag is absent', () => {
+    expect(parseArgs(['routes']).components).toBe(false);
+  });
+
+  it('parses --tree on the routes command', () => {
+    const parsed = parseArgs(['routes', '--tree']);
+    expect(parsed.tree).toBe(true);
+    expect(parsed.treeAll).toBe(false);
+  });
+
+  it('parses --tree-all and implies --tree', () => {
+    const parsed = parseArgs(['routes', '--tree-all']);
+    expect(parsed.tree).toBe(true);
+    expect(parsed.treeAll).toBe(true);
+  });
+
+  it('defaults tree flags to false when absent', () => {
+    const parsed = parseArgs(['routes']);
+    expect(parsed.tree).toBe(false);
+    expect(parsed.treeAll).toBe(false);
   });
 
   it('throws on an invalid --sort value', () => {

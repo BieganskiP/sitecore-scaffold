@@ -113,7 +113,7 @@ async function main(): Promise<void> {
   }
 
   if (args.command === 'routes') {
-    const result = await runRoutes({ lang: args.lang, filter: args.filter, sort: args.sort, json: args.json, out: args.out });
+    const result = await runRoutes({ lang: args.lang, filter: args.filter, sort: args.sort, json: args.json, out: args.out, components: args.components, tree: args.tree, treeAll: args.treeAll });
     process.stdout.write(result.output + '\n');
     return;
   }

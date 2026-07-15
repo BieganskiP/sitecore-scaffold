@@ -31,3 +31,22 @@ export const ROUTES_QUERY = `query GetRoutes($site: String!, $language: String!,
     }
   }
 }`;
+
+// Smaller page size: each route carries its full rendered layout JSON.
+export const ROUTES_WITH_COMPONENTS_QUERY = `query GetRoutesWithComponents($site: String!, $language: String!, $after: String) {
+  site {
+    siteInfo(site: $site) {
+      routes(language: $language, first: 25, after: $after) {
+        results {
+          routePath
+          route {
+            name
+            updated: field(name: "__Updated") { value }
+            rendered
+          }
+        }
+        pageInfo { endCursor hasNext }
+      }
+    }
+  }
+}`;

@@ -26,10 +26,10 @@ describe('runRoutes', () => {
   it('renders a path-sorted table with a footer, defaulting lang from config', async () => {
     const d = deps();
     const { output, count } = await runRoutes(
-      { lang: undefined, filter: undefined, sort: 'path', json: false, out: undefined },
+      { lang: undefined, filter: undefined, sort: 'path', json: false, out: undefined, components: false, tree: false, treeAll: false },
       d,
     );
-    expect(d.getRoutes).toHaveBeenCalledWith('en');
+    expect(d.getRoutes).toHaveBeenCalledWith('en', false);
     expect(count).toBe(3);
     const lines = output.split('\n');
     expect(lines[0]).toMatch(/^ROUTE\s+NAME\s+UPDATED$/);
@@ -41,16 +41,16 @@ describe('runRoutes', () => {
   it('passes an explicit --lang through to getRoutes and the footer', async () => {
     const d = deps();
     const { output } = await runRoutes(
-      { lang: 'da', filter: undefined, sort: 'path', json: false, out: undefined },
+      { lang: 'da', filter: undefined, sort: 'path', json: false, out: undefined, components: false, tree: false, treeAll: false },
       d,
     );
-    expect(d.getRoutes).toHaveBeenCalledWith('da');
+    expect(d.getRoutes).toHaveBeenCalledWith('da', false);
     expect(output.endsWith('(lang: da)')).toBe(true);
   });
 
   it('applies filter and sort before rendering', async () => {
     const { output, count } = await runRoutes(
-      { lang: undefined, filter: '/products', sort: 'updated', json: false, out: undefined },
+      { lang: undefined, filter: '/products', sort: 'updated', json: false, out: undefined, components: false, tree: false, treeAll: false },
       deps(),
     );
     expect(count).toBe(1);
@@ -60,7 +60,7 @@ describe('runRoutes', () => {
 
   it('renders JSON when --json is set', async () => {
     const { output } = await runRoutes(
-      { lang: undefined, filter: undefined, sort: 'path', json: true, out: undefined },
+      { lang: undefined, filter: undefined, sort: 'path', json: true, out: undefined, components: false, tree: false, treeAll: false },
       deps(),
     );
     expect(JSON.parse(output)).toEqual([
@@ -72,16 +72,80 @@ describe('runRoutes', () => {
 
   it('reports zero routes without failing', async () => {
     const { output, count } = await runRoutes(
-      { lang: undefined, filter: undefined, sort: 'path', json: false, out: undefined },
+      { lang: undefined, filter: undefined, sort: 'path', json: false, out: undefined, components: false, tree: false, treeAll: false },
       deps([]),
     );
     expect(count).toBe(0);
     expect(output).toBe('0 routes (lang: en)');
   });
 
+  it('requests components from getRoutes and renders them under each route', async () => {
+    const withComponents: RouteInfo[] = [
+      { routePath: '/', name: 'Home', updatedAt: '2026-06-28', components: ['Hero', 'Card'] },
+      { routePath: '/about', name: 'About Us', updatedAt: null, components: [] },
+    ];
+    const d = deps(withComponents);
+    const { output } = await runRoutes(
+      { lang: undefined, filter: undefined, sort: 'path', json: false, out: undefined, components: true, tree: false, treeAll: false },
+      d,
+    );
+    expect(d.getRoutes).toHaveBeenCalledWith('en', true);
+    expect(output).toContain('    Hero, Card');
+    expect(output).toContain('    (no components)');
+  });
+
+  it('includes components in JSON output when requested', async () => {
+    const withComponents: RouteInfo[] = [
+      { routePath: '/', name: 'Home', updatedAt: null, components: ['Hero'] },
+    ];
+    const { output } = await runRoutes(
+      { lang: undefined, filter: undefined, sort: 'path', json: true, out: undefined, components: true, tree: false, treeAll: false },
+      deps(withComponents),
+    );
+    expect(JSON.parse(output)).toEqual([
+      { routePath: '/', name: 'Home', updatedAt: null, components: ['Hero'] },
+    ]);
+  });
+
+  it('renders a tree when tree is set', async () => {
+    const treeRoutes: RouteInfo[] = [
+      { routePath: '/', name: 'Home', updatedAt: null },
+      { routePath: '/news', name: 'News', updatedAt: null },
+      { routePath: '/news/a', name: 'A', updatedAt: null },
+    ];
+    const { output, count } = await runRoutes(
+      { lang: undefined, filter: undefined, sort: 'path', json: false, out: undefined, components: false, tree: true, treeAll: false },
+      deps(treeRoutes),
+    );
+    expect(count).toBe(3);
+    expect(output).toContain('└── news  News  (1)');
+    expect(output).toContain('    └── a  A');
+    expect(output.endsWith('3 routes (lang: en)')).toBe(true);
+  });
+
+  it('expands collapsed groups when treeAll is set', async () => {
+    const many: RouteInfo[] = Array.from({ length: 12 }, (_, i) => ({
+      routePath: `/p${String(i).padStart(2, '0')}`, name: `P${i}`, updatedAt: null,
+    }));
+    const { output } = await runRoutes(
+      { lang: undefined, filter: undefined, sort: 'path', json: false, out: undefined, components: false, tree: true, treeAll: true },
+      deps(many),
+    );
+    expect(output.split('\n')[0]).toBe('/');
+    expect(output).not.toContain('more');
+    expect(output).toContain('p11');
+  });
+
+  it('rejects tree combined with json, out, or components', async () => {
+    const base = { lang: undefined, filter: undefined, sort: 'path' as const, json: false, out: undefined, components: false, tree: true, treeAll: false };
+    await expect(runRoutes({ ...base, json: true }, deps())).rejects.toThrow(/--tree/);
+    await expect(runRoutes({ ...base, out: 'x.json' }, deps())).rejects.toThrow(/--tree/);
+    await expect(runRoutes({ ...base, components: true }, deps())).rejects.toThrow(/--tree/);
+  });
+
   it('orders by updated newest-first with nulls last when sort is updated', async () => {
     const { output } = await runRoutes(
-      { lang: undefined, filter: undefined, sort: 'updated', json: true, out: undefined },
+      { lang: undefined, filter: undefined, sort: 'updated', json: true, out: undefined, components: false, tree: false, treeAll: false },
       deps(),
     );
     expect(JSON.parse(output).map((r: RouteInfo) => r.routePath)).toEqual(['/products', '/', '/about']);
@@ -102,7 +166,7 @@ describe('runRoutes --out', () => {
   it('writes the JSON export to the file and reports a confirmation', async () => {
     const out = join(tmp(), 'routes.json');
     const { output, count } = await runRoutes(
-      { lang: undefined, filter: undefined, sort: 'path', json: true, out },
+      { lang: undefined, filter: undefined, sort: 'path', json: true, out, components: false, tree: false, treeAll: false },
       deps(),
     );
     expect(count).toBe(3);
@@ -118,20 +182,20 @@ describe('runRoutes --out', () => {
 
   it('implies --json: writes JSON even when json is false', async () => {
     const out = join(tmp(), 'routes.json');
-    await runRoutes({ lang: undefined, filter: undefined, sort: 'path', json: false, out }, deps());
+    await runRoutes({ lang: undefined, filter: undefined, sort: 'path', json: false, out, components: false, tree: false, treeAll: false }, deps());
     expect(JSON.parse(readFileSync(out, 'utf8'))).toHaveLength(3);
   });
 
   it('creates missing parent directories', async () => {
     const out = join(tmp(), 'reports', 'nested', 'routes.json');
-    await runRoutes({ lang: undefined, filter: undefined, sort: 'path', json: false, out }, deps());
+    await runRoutes({ lang: undefined, filter: undefined, sort: 'path', json: false, out, components: false, tree: false, treeAll: false }, deps());
     expect(existsSync(out)).toBe(true);
   });
 
   it('overwrites an existing file', async () => {
     const out = join(tmp(), 'routes.json');
     writeFileSync(out, 'stale', 'utf8');
-    await runRoutes({ lang: undefined, filter: undefined, sort: 'path', json: false, out }, deps());
+    await runRoutes({ lang: undefined, filter: undefined, sort: 'path', json: false, out, components: false, tree: false, treeAll: false }, deps());
     expect(readFileSync(out, 'utf8')).not.toContain('stale');
     expect(JSON.parse(readFileSync(out, 'utf8'))).toHaveLength(3);
   });
@@ -139,7 +203,7 @@ describe('runRoutes --out', () => {
   it('applies filter before writing and reports the filtered count', async () => {
     const out = join(tmp(), 'routes.json');
     const { output } = await runRoutes(
-      { lang: undefined, filter: '/products', sort: 'path', json: false, out },
+      { lang: undefined, filter: '/products', sort: 'path', json: false, out, components: false, tree: false, treeAll: false },
       deps(),
     );
     expect(output).toBe(`Wrote 1 route(s) to ${out}`);

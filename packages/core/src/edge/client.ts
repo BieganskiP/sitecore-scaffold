@@ -1,5 +1,7 @@
 import type { EdgeConfig } from '../types.js';
-import { LAYOUT_QUERY, DICTIONARY_QUERY, ROUTES_QUERY } from './query.js';
+import { LAYOUT_QUERY, DICTIONARY_QUERY, ROUTES_QUERY, ROUTES_WITH_COMPONENTS_QUERY } from './query.js';
+import { parseLayout } from '../inspect/parse.js';
+import { collectComponentNames } from '../inspect/collect.js';
 
 interface LayoutResponse {
   data?: { layout?: { item?: { rendered?: unknown } | null } };
@@ -29,6 +31,8 @@ export interface RouteInfo {
   routePath: string;
   name: string;
   updatedAt: string | null;
+  /** Unique component names on the page; present only when requested. */
+  components?: string[];
 }
 
 interface RoutesResponse {
@@ -38,7 +42,7 @@ interface RoutesResponse {
         routes?: {
           results?: Array<{
             routePath?: string;
-            route?: { name?: string; updated?: { value?: string } | null } | null;
+            route?: { name?: string; updated?: { value?: string } | null; rendered?: unknown } | null;
           }>;
           pageInfo?: { endCursor?: string | null; hasNext?: boolean };
         } | null;
@@ -53,6 +57,16 @@ function normalizeUpdated(raw: string | undefined): string | null {
   if (!raw) return null;
   const m = /^(\d{4})-?(\d{2})-?(\d{2})/.exec(raw);
   return m ? `${m[1]}-${m[2]}-${m[3]}` : null;
+}
+
+/** Extract component names from a route's rendered layout, tolerating null/malformed payloads. */
+function componentsFromRendered(rendered: unknown, routePath: string): string[] {
+  if (!rendered) return [];
+  try {
+    return collectComponentNames(parseLayout(rendered, routePath));
+  } catch {
+    return [];
+  }
 }
 
 const EDGE_PLATFORM_URL = 'https://edge-platform.sitecorecloud.io/v1/content/api/graphql/v1';
@@ -134,12 +148,14 @@ export class EdgeClient {
     return entries;
   }
 
-  async getRoutes(language: string): Promise<RouteInfo[]> {
+  async getRoutes(language: string, opts?: { components?: boolean }): Promise<RouteInfo[]> {
+    const withComponents = opts?.components === true;
+    const query = withComponents ? ROUTES_WITH_COMPONENTS_QUERY : ROUTES_QUERY;
     const routes: RouteInfo[] = [];
     let after: string | null = null;
 
     do {
-      const json: RoutesResponse = await this.post<RoutesResponse>(ROUTES_QUERY, {
+      const json: RoutesResponse = await this.post<RoutesResponse>(query, {
         site: this.config.site,
         language,
         after,
@@ -152,6 +168,7 @@ export class EdgeClient {
           routePath: r.routePath,
           name: r.route?.name ?? '',
           updatedAt: normalizeUpdated(r.route?.updated?.value),
+          ...(withComponents ? { components: componentsFromRendered(r.route?.rendered, r.routePath) } : {}),
         });
       }
 

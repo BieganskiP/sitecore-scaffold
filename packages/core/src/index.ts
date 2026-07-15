@@ -6,7 +6,7 @@ export { resolveStorybook } from './config/storybook.js';
 export { EdgeClient } from './edge/client.js';
 export { LAYOUT_QUERY } from './edge/query.js';
 export { parseLayout } from './inspect/parse.js';
-export { collectRenderings } from './inspect/collect.js';
+export { collectRenderings, collectComponentNames } from './inspect/collect.js';
 export { formatTree } from './inspect/render-tree.js';
 export { inferField } from './contract/infer.js';
 export { buildContract } from './contract/build.js';
@@ -24,9 +24,10 @@ export type { DictionaryEntry } from './edge/client.js';
 export { buildDictionary, type DictionaryBuildResult } from './dictionary/build.js';
 export { renderDictionaryFile } from './codegen/dictionary-file.js';
 export { renderTypedTFile } from './codegen/typed-t-file.js';
-export { ROUTES_QUERY } from './edge/query.js';
+export { ROUTES_QUERY, ROUTES_WITH_COMPONENTS_QUERY } from './edge/query.js';
 export type { RouteInfo } from './edge/client.js';
 export { filterRoutes, sortRoutes, renderRoutesTable, renderRoutesJson, type RouteSort } from './routes/format.js';
+export { renderRoutesTree } from './routes/tree.js';
 export { parseManifest } from './registry/manifest.js';
 export type {
   ComponentManifest,

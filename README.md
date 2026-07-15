@@ -103,7 +103,7 @@ Required for `add` and all introspect commands (`list`/`info` do not need it):
     headcore inspect <route>
     headcore page <route> [--lang <lang>] [--dry-run] [--force]
     headcore dictionary [--lang <lang>] [--dry-run] [--force]
-    headcore routes [--lang <lang>] [--filter <substring>] [--sort path|updated] [--json] [--out <file>]
+    headcore routes [--lang <lang>] [--filter <substring>] [--sort path|updated] [--components] [--tree [--tree-all]] [--json] [--out <file>]
     headcore component <Name> --route <route> [--lang <lang>] [--variants <A,B,C>] [--dry-run] [--force]
 
 `inspect` prints the rendering/placeholder tree for a route.
@@ -139,6 +139,27 @@ item name, and last-updated date — so you can discover new pages without askin
 a Sitecore dev for URLs. `--filter <substring>` narrows by path
 (case-insensitive), `--sort updated` puts the newest pages first (default is by
 path), and `--json` emits `[{ routePath, name, updatedAt }]` for scripting.
+`--components` additionally lists the unique component names used on each page,
+indented under the route row (or as a `components` array in JSON). The rendered
+layout is fetched inside the same paginated routes query, so it stays a handful
+of requests rather than one per page — but each page of results is heavier, so
+expect the command to take longer on large sites.
+`--tree` renders the routes as a path hierarchy instead of a flat table — each
+branch shows how many pages live under it, and groups of more than 10 sibling
+"details" pages collapse to the first 5 plus a `… +N more` line so large sites
+stay scannable (pass `--tree-all` to expand everything). `--filter` still
+applies; `--tree` cannot be combined with `--json`, `--out`, or `--components`.
+
+    /  Home
+    ├── about  About Us
+    └── news  News  (52)
+        ├── airport-expansion  Airport Expansion
+        ├── new-lounge  New Lounge
+        ├── summer-schedule  Summer Schedule
+        ├── winter-schedule  Winter Schedule
+        ├── year-in-review  Year in Review
+        └── … +47 more (use --tree-all)
+
 Zero matches is not an error: you get `0 routes (lang: xx)` (or `[]`) and exit
 code 0.
 Pass `--out <file>` to save the JSON export to a file instead of printing it

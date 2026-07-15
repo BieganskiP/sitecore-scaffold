@@ -31,16 +31,26 @@ export function renderRoutesTable(routes: RouteInfo[], lang: string): string {
   ];
   const pathWidth = Math.max(...rows.map((r) => r.routePath.length));
   const nameWidth = Math.max(...rows.map((r) => r.name.length));
-  const lines = rows.map((r) =>
-    `${r.routePath.padEnd(pathWidth)}  ${r.name.padEnd(nameWidth)}  ${r.updatedAt}`.trimEnd(),
-  );
+  const lines: string[] = [];
+  for (const [i, r] of rows.entries()) {
+    lines.push(`${r.routePath.padEnd(pathWidth)}  ${r.name.padEnd(nameWidth)}  ${r.updatedAt}`.trimEnd());
+    const components = i === 0 ? undefined : routes[i - 1].components;
+    if (components !== undefined) {
+      lines.push(`    ${components.length > 0 ? components.join(', ') : '(no components)'}`);
+    }
+  }
   return `${lines.join('\n')}\n\n${footer}`;
 }
 
 export function renderRoutesJson(routes: RouteInfo[]): string {
   if (routes.length === 0) return '[]';
   return JSON.stringify(
-    routes.map((r) => ({ routePath: r.routePath, name: r.name, updatedAt: r.updatedAt })),
+    routes.map((r) => ({
+      routePath: r.routePath,
+      name: r.name,
+      updatedAt: r.updatedAt,
+      ...(r.components !== undefined ? { components: r.components } : {}),
+    })),
     null,
     2,
   );

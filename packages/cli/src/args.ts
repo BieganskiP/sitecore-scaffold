@@ -10,6 +10,9 @@ export interface ParsedArgs {
   sort: 'path' | 'updated';
   json: boolean;
   out: string | undefined;
+  components: boolean;
+  tree: boolean;
+  treeAll: boolean;
 }
 
 const USAGE = `usage:
@@ -26,7 +29,7 @@ Introspect:
   headcore inspect <route>
   headcore page <route> [--lang <lang>] [--dry-run] [--force]
   headcore dictionary [--lang <lang>] [--dry-run] [--force]
-  headcore routes [--lang <lang>] [--filter <substring>] [--sort path|updated] [--json] [--out <file>]
+  headcore routes [--lang <lang>] [--filter <substring>] [--sort path|updated] [--components] [--tree [--tree-all]] [--json] [--out <file>]
   headcore component <Name> --route <route> [--lang <lang>] [--variants <A,B,C>] [--dry-run] [--force]`;
 
 export function parseArgs(argv: string[]): ParsedArgs {
@@ -50,6 +53,9 @@ export function parseArgs(argv: string[]): ParsedArgs {
   let sort: 'path' | 'updated' = 'path';
   let json = false;
   let out: string | undefined;
+  let components = false;
+  let tree = false;
+  let treeAll = false;
 
   for (let i = 0; i < rest.length; i++) {
     const arg = rest[i];
@@ -60,6 +66,9 @@ export function parseArgs(argv: string[]): ParsedArgs {
     else if (arg === '--force') force = true;
     else if (arg === '--filter') filter = rest[++i];
     else if (arg === '--json') json = true;
+    else if (arg === '--components') components = true;
+    else if (arg === '--tree') tree = true;
+    else if (arg === '--tree-all') { tree = true; treeAll = true; }
     else if (arg === '--out') {
       out = rest[++i];
       if (out === undefined) throw new Error(`--out requires a file path\n${USAGE}`);
@@ -77,8 +86,8 @@ export function parseArgs(argv: string[]): ParsedArgs {
     command === 'inspect' || command === 'page' || command === 'dictionary' ||
     command === 'routes' || command === 'list' || command === 'init'
   ) {
-    return { command, name: undefined, route: positionals[0], lang, dryRun, force, variants, filter, sort, json, out };
+    return { command, name: undefined, route: positionals[0], lang, dryRun, force, variants, filter, sort, json, out, components, tree, treeAll };
   }
   // component | info | add — take a <Name> positional
-  return { command, name: positionals[0], route, lang, dryRun, force, variants, filter, sort, json, out };
+  return { command, name: positionals[0], route, lang, dryRun, force, variants, filter, sort, json, out, components, tree, treeAll };
 }

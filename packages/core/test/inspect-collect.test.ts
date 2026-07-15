@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { collectRenderings } from '../src/inspect/collect.js';
+import { collectRenderings, collectComponentNames } from '../src/inspect/collect.js';
 import type { RenderingTree } from '../src/types.js';
 
 const tree: RenderingTree = {
@@ -25,5 +25,15 @@ describe('collectRenderings', () => {
 
   it('returns an empty array when there are no placeholders', () => {
     expect(collectRenderings({ route: '/x', placeholders: {} })).toEqual([]);
+  });
+});
+
+describe('collectComponentNames', () => {
+  it('returns unique component names in depth-first appearance order', () => {
+    expect(collectComponentNames(tree)).toEqual(['Hero', 'Card']);
+  });
+
+  it('returns an empty array for a tree without renderings', () => {
+    expect(collectComponentNames({ route: '/x', placeholders: {} })).toEqual([]);
   });
 });
