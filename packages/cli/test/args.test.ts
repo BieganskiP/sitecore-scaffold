@@ -144,11 +144,17 @@ describe('parseArgs gui', () => {
     expect(args.noOpen).toBe(true);
   });
 
+  it('accepts the port range boundaries', () => {
+    expect(parseArgs(['gui', '--port', '1']).port).toBe(1);
+    expect(parseArgs(['gui', '--port', '65535']).port).toBe(65535);
+  });
+
   it('rejects a non-numeric or out-of-range --port', () => {
     expect(() => parseArgs(['gui', '--port', 'abc'])).toThrow(/--port/);
     expect(() => parseArgs(['gui', '--port', '0'])).toThrow(/--port/);
     expect(() => parseArgs(['gui', '--port', '70000'])).toThrow(/--port/);
     expect(() => parseArgs(['gui', '--port'])).toThrow(/--port/);
+    expect(() => parseArgs(['gui', '--port', '08'])).toThrow(/--port/);
   });
 
   it('mentions gui in usage for unknown commands', () => {
