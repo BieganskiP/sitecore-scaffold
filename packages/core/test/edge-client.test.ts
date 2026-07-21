@@ -333,3 +333,92 @@ describe('EdgeClient.getRoutes with components', () => {
     expect(routes.map((r) => r.components)).toEqual([[], []]);
   });
 });
+
+describe('EdgeClient.getRoutesDetailed', () => {
+  function renderedLayout() {
+    return {
+      sitecore: {
+        route: {
+          placeholders: {
+            'headless-main': [
+              {
+                componentName: 'Hero',
+                dataSource: '{GUID-1}',
+                fields: { Title: { value: 'Big' } },
+                placeholders: { inner: [{ componentName: 'Card', placeholders: {} }] },
+              },
+            ],
+          },
+        },
+      },
+    };
+  }
+
+  function page(results: Array<{ routePath: string; rendered: unknown }>, pageInfo: { endCursor: string; hasNext: boolean }) {
+    return {
+      data: { site: { siteInfo: { routes: {
+        results: results.map((r) => ({
+          routePath: r.routePath,
+          route: { name: 'Page', updated: { value: '20260701T080000Z' }, rendered: r.rendered },
+        })),
+        pageInfo,
+      } } } },
+    };
+  }
+
+  it('returns routes with components and a trimmed layout tree', async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce({
+      ok: true,
+      json: async () => page([{ routePath: '/', rendered: renderedLayout() }], { endCursor: 'C1', hasNext: false }),
+    });
+    const client = new EdgeClient(config, fetchMock as unknown as typeof fetch);
+    const routes = await client.getRoutesDetailed('en');
+
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body as string).query).toContain('rendered');
+    expect(routes).toEqual([
+      {
+        routePath: '/',
+        name: 'Page',
+        updatedAt: '2026-07-01',
+        components: ['Hero', 'Card'],
+        layout: {
+          'headless-main': [
+            {
+              componentName: 'Hero',
+              dataSource: '{GUID-1}',
+              fieldNames: ['Title'],
+              placeholders: { inner: [{ componentName: 'Card', fieldNames: [], placeholders: {} }] },
+            },
+          ],
+        },
+      },
+    ]);
+  });
+
+  it('yields empty components and layout for null or malformed rendered', async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce({
+      ok: true,
+      json: async () => page(
+        [
+          { routePath: '/a', rendered: null },
+          { routePath: '/b', rendered: { unexpected: true } },
+        ],
+        { endCursor: 'C1', hasNext: false },
+      ),
+    });
+    const client = new EdgeClient(config, fetchMock as unknown as typeof fetch);
+    const routes = await client.getRoutesDetailed('en');
+    expect(routes.map((r) => r.components)).toEqual([[], []]);
+    expect(routes.map((r) => r.layout)).toEqual([{}, {}]);
+  });
+
+  it('follows pagination', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => page([{ routePath: '/', rendered: null }], { endCursor: 'CURSOR1', hasNext: true }) })
+      .mockResolvedValueOnce({ ok: true, json: async () => page([{ routePath: '/about', rendered: null }], { endCursor: 'CURSOR2', hasNext: false }) });
+    const client = new EdgeClient(config, fetchMock as unknown as typeof fetch);
+    const routes = await client.getRoutesDetailed('en');
+    expect(routes.map((r) => r.routePath)).toEqual(['/', '/about']);
+    expect(JSON.parse(fetchMock.mock.calls[1][1].body as string).variables.after).toBe('CURSOR1');
+  });
+});

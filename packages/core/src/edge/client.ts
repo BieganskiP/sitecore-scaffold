@@ -2,6 +2,7 @@ import type { EdgeConfig } from '../types.js';
 import { LAYOUT_QUERY, DICTIONARY_QUERY, ROUTES_QUERY, ROUTES_WITH_COMPONENTS_QUERY } from './query.js';
 import { parseLayout } from '../inspect/parse.js';
 import { collectComponentNames } from '../inspect/collect.js';
+import { trimPlaceholders, type GuiRouteDetail } from '../gui/state.js';
 
 interface LayoutResponse {
   data?: { layout?: { item?: { rendered?: unknown } | null } };
@@ -169,6 +170,48 @@ export class EdgeClient {
           name: r.route?.name ?? '',
           updatedAt: normalizeUpdated(r.route?.updated?.value),
           ...(withComponents ? { components: componentsFromRendered(r.route?.rendered, r.routePath) } : {}),
+        });
+      }
+
+      const pageInfo = conn?.pageInfo;
+      after = pageInfo?.hasNext && pageInfo.endCursor ? pageInfo.endCursor : null;
+    } while (after !== null);
+
+    return routes;
+  }
+
+  /** Like getRoutes with components, but also retains a trimmed layout tree per route. */
+  async getRoutesDetailed(language: string): Promise<GuiRouteDetail[]> {
+    const routes: GuiRouteDetail[] = [];
+    let after: string | null = null;
+
+    do {
+      const json: RoutesResponse = await this.post<RoutesResponse>(ROUTES_WITH_COMPONENTS_QUERY, {
+        site: this.config.site,
+        language,
+        after,
+      });
+
+      const conn = json.data?.site?.siteInfo?.routes;
+      for (const r of conn?.results ?? []) {
+        if (!r.routePath) continue;
+        let components: string[] = [];
+        let layout: GuiRouteDetail['layout'] = {};
+        if (r.route?.rendered) {
+          try {
+            const tree = parseLayout(r.route.rendered, r.routePath);
+            components = collectComponentNames(tree);
+            layout = trimPlaceholders(tree.placeholders);
+          } catch {
+            // malformed rendered payload → empty structure, same policy as componentsFromRendered
+          }
+        }
+        routes.push({
+          routePath: r.routePath,
+          name: r.route?.name ?? '',
+          updatedAt: normalizeUpdated(r.route?.updated?.value),
+          components,
+          layout,
         });
       }
 
