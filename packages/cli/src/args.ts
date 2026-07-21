@@ -1,5 +1,5 @@
 export interface ParsedArgs {
-  command: 'inspect' | 'component' | 'page' | 'dictionary' | 'routes' | 'list' | 'info' | 'add' | 'init';
+  command: 'inspect' | 'component' | 'page' | 'dictionary' | 'routes' | 'list' | 'info' | 'add' | 'init' | 'gui';
   name: string | undefined;
   route: string | undefined;
   lang: string | undefined;
@@ -13,6 +13,8 @@ export interface ParsedArgs {
   components: boolean;
   tree: boolean;
   treeAll: boolean;
+  port: number | undefined;
+  noOpen: boolean;
 }
 
 const USAGE = `usage:
@@ -30,6 +32,7 @@ Introspect:
   headcore page <route> [--lang <lang>] [--dry-run] [--force]
   headcore dictionary [--lang <lang>] [--dry-run] [--force]
   headcore routes [--lang <lang>] [--filter <substring>] [--sort path|updated] [--components] [--tree [--tree-all]] [--json] [--out <file>]
+  headcore gui [--lang <lang>] [--port <n>] [--no-open]
   headcore component <Name> --route <route> [--lang <lang>] [--variants <A,B,C>] [--dry-run] [--force]`;
 
 export function parseArgs(argv: string[]): ParsedArgs {
@@ -38,7 +41,8 @@ export function parseArgs(argv: string[]): ParsedArgs {
   if (
     command !== 'inspect' && command !== 'component' && command !== 'page' &&
     command !== 'dictionary' && command !== 'routes' &&
-    command !== 'list' && command !== 'info' && command !== 'add' && command !== 'init'
+    command !== 'list' && command !== 'info' && command !== 'add' && command !== 'init' &&
+    command !== 'gui'
   ) {
     throw new Error(`unknown command "${command}"\n${USAGE}`);
   }
@@ -56,6 +60,8 @@ export function parseArgs(argv: string[]): ParsedArgs {
   let components = false;
   let tree = false;
   let treeAll = false;
+  let port: number | undefined;
+  let noOpen = false;
 
   for (let i = 0; i < rest.length; i++) {
     const arg = rest[i];
@@ -79,15 +85,24 @@ export function parseArgs(argv: string[]): ParsedArgs {
         throw new Error(`--sort must be "path" or "updated", got "${value ?? ''}"\n${USAGE}`);
       }
       sort = value;
+    }
+    else if (arg === '--no-open') noOpen = true;
+    else if (arg === '--port') {
+      const value = rest[++i];
+      const parsed = Number.parseInt(value ?? '', 10);
+      if (value === undefined || String(parsed) !== value || parsed < 1 || parsed > 65535) {
+        throw new Error(`--port must be an integer between 1 and 65535, got "${value ?? ''}"\n${USAGE}`);
+      }
+      port = parsed;
     } else positionals.push(arg);
   }
 
   if (
     command === 'inspect' || command === 'page' || command === 'dictionary' ||
-    command === 'routes' || command === 'list' || command === 'init'
+    command === 'routes' || command === 'list' || command === 'init' || command === 'gui'
   ) {
-    return { command, name: undefined, route: positionals[0], lang, dryRun, force, variants, filter, sort, json, out, components, tree, treeAll };
+    return { command, name: undefined, route: positionals[0], lang, dryRun, force, variants, filter, sort, json, out, components, tree, treeAll, port, noOpen };
   }
   // component | info | add — take a <Name> positional
-  return { command, name: positionals[0], route, lang, dryRun, force, variants, filter, sort, json, out, components, tree, treeAll };
+  return { command, name: positionals[0], route, lang, dryRun, force, variants, filter, sort, json, out, components, tree, treeAll, port, noOpen };
 }

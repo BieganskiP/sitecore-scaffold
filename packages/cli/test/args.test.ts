@@ -7,6 +7,7 @@ describe('parseArgs', () => {
       command: 'inspect', name: undefined, route: '/about-us',
       lang: undefined, dryRun: false, force: false, variants: [],
       filter: undefined, sort: 'path', json: false, out: undefined, components: false, tree: false, treeAll: false,
+      port: undefined, noOpen: false,
     });
   });
 
@@ -14,6 +15,7 @@ describe('parseArgs', () => {
     expect(parseArgs(['component', 'Hero', '--route', '/about-us', '--lang', 'da', '--dry-run', '--force'])).toEqual({
       command: 'component', name: 'Hero', route: '/about-us', lang: 'da', dryRun: true, force: true, variants: [],
       filter: undefined, sort: 'path', json: false, out: undefined, components: false, tree: false, treeAll: false,
+      port: undefined, noOpen: false,
     });
   });
 
@@ -31,6 +33,7 @@ describe('parseArgs', () => {
       command: 'init', name: undefined, route: undefined,
       lang: undefined, dryRun: true, force: true, variants: [],
       filter: undefined, sort: 'path', json: false, out: undefined, components: false, tree: false, treeAll: false,
+      port: undefined, noOpen: false,
     });
   });
 
@@ -53,6 +56,7 @@ describe('parseArgs', () => {
     expect(parseArgs(['page', '/about-us', '--lang', 'da', '--dry-run'])).toEqual({
       command: 'page', name: undefined, route: '/about-us', lang: 'da', dryRun: true, force: false, variants: [],
       filter: undefined, sort: 'path', json: false, out: undefined, components: false, tree: false, treeAll: false,
+      port: undefined, noOpen: false,
     });
   });
 
@@ -61,6 +65,7 @@ describe('parseArgs', () => {
       command: 'dictionary', name: undefined, route: undefined,
       lang: 'da', dryRun: true, force: true, variants: [],
       filter: undefined, sort: 'path', json: false, out: undefined, components: false, tree: false, treeAll: false,
+      port: undefined, noOpen: false,
     });
   });
 
@@ -69,6 +74,7 @@ describe('parseArgs', () => {
       command: 'routes', name: undefined, route: undefined,
       lang: 'da', dryRun: false, force: false, variants: [],
       filter: '/products', sort: 'updated', json: true, out: undefined, components: false, tree: false, treeAll: false,
+      port: undefined, noOpen: false,
     });
   });
 
@@ -119,5 +125,33 @@ describe('parseArgs', () => {
 
   it('throws when --out is missing its file path', () => {
     expect(() => parseArgs(['routes', '--out'])).toThrow(/--out requires a file path/i);
+  });
+});
+
+describe('parseArgs gui', () => {
+  it('parses gui with defaults', () => {
+    const args = parseArgs(['gui']);
+    expect(args.command).toBe('gui');
+    expect(args.port).toBeUndefined();
+    expect(args.noOpen).toBe(false);
+    expect(args.lang).toBeUndefined();
+  });
+
+  it('parses --lang, --port and --no-open', () => {
+    const args = parseArgs(['gui', '--lang', 'da', '--port', '5000', '--no-open']);
+    expect(args.lang).toBe('da');
+    expect(args.port).toBe(5000);
+    expect(args.noOpen).toBe(true);
+  });
+
+  it('rejects a non-numeric or out-of-range --port', () => {
+    expect(() => parseArgs(['gui', '--port', 'abc'])).toThrow(/--port/);
+    expect(() => parseArgs(['gui', '--port', '0'])).toThrow(/--port/);
+    expect(() => parseArgs(['gui', '--port', '70000'])).toThrow(/--port/);
+    expect(() => parseArgs(['gui', '--port'])).toThrow(/--port/);
+  });
+
+  it('mentions gui in usage for unknown commands', () => {
+    expect(() => parseArgs(['nope'])).toThrow(/headcore gui/);
   });
 });
