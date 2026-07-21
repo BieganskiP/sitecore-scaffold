@@ -18,6 +18,15 @@ describe('parseHash', () => {
     expect(parseHash('#/components?component=Hero')).toEqual({ view: 'components', component: 'Hero' });
     expect(parseHash('#/inspector?route=%2Fabout%2Fteam')).toEqual({ view: 'inspector', route: '/about/team' });
   });
+
+  it('treats empty params as absent', () => {
+    expect(parseHash('#/components?component=')).toEqual({ view: 'components' });
+    expect(parseHash('#/inspector?route=')).toEqual({ view: 'inspector' });
+  });
+
+  it('keeps everything after the first ? as query', () => {
+    expect(parseHash('#/inspector?route=%2Fa%3Fb')).toEqual({ view: 'inspector', route: '/a?b' });
+  });
 });
 
 describe('toHash', () => {

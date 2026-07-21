@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 export type View =
   | { view: 'overview' }
@@ -7,16 +7,19 @@ export type View =
   | { view: 'inspector'; route?: string };
 
 export function parseHash(hash: string): View {
-  const [path, query = ''] = hash.replace(/^#\/?/, '').split('?');
+  const stripped = hash.replace(/^#\/?/, '');
+  const qIdx = stripped.indexOf('?');
+  const path = qIdx === -1 ? stripped : stripped.slice(0, qIdx);
+  const query = qIdx === -1 ? '' : stripped.slice(qIdx + 1);
   const params = new URLSearchParams(query);
   if (path === 'routes') return { view: 'routes' };
   if (path === 'components') {
     const component = params.get('component');
-    return component !== null ? { view: 'components', component } : { view: 'components' };
+    return component ? { view: 'components', component } : { view: 'components' };
   }
   if (path === 'inspector') {
     const route = params.get('route');
-    return route !== null ? { view: 'inspector', route } : { view: 'inspector' };
+    return route ? { view: 'inspector', route } : { view: 'inspector' };
   }
   return { view: 'overview' };
 }
@@ -39,5 +42,8 @@ export function useHashView(): [View, (v: View) => void] {
     window.addEventListener('hashchange', onChange);
     return () => window.removeEventListener('hashchange', onChange);
   }, []);
-  return [view, (v) => { window.location.hash = toHash(v); }];
+  const navigate = useCallback((v: View): void => {
+    window.location.hash = toHash(v);
+  }, []);
+  return [view, navigate];
 }
