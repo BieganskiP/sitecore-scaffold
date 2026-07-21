@@ -6,7 +6,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build --workspace=packages/core && npm run build --workspace=packages/cli",
+    "build": "npm run build --workspace=packages/core && npm run build --workspace=packages/gui && npm run build --workspace=packages/cli",
     "test": "vitest run",
     "test:watch": "vitest"
   },

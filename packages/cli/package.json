@@ -9,6 +9,7 @@
   "files": [
     "dist",
     "registry",
+    "gui-dist",
     "README.md"
   ],
   "keywords": [
