@@ -25,6 +25,8 @@ export function App() {
     }
   }, []);
 
+  // No abort/ignore guard: App is the root and never unmounts. If this fetch
+  // pattern moves into a view that mounts/unmounts, add an active-flag cleanup.
   useEffect(() => {
     fetchState().then(apply).catch((err: unknown) => setErrors([String(err)]));
   }, [apply]);

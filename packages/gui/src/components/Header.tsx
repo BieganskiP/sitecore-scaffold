@@ -36,7 +36,7 @@ export function Header({ state, busy, warnings, onRefresh }: {
       <button
         onClick={() => onRefresh(lang.trim() || undefined)}
         disabled={busy}
-        className="rounded bg-sky-600 px-3 py-1 text-sm font-medium text-white hover:bg-sky-500 disabled:opacity-50"
+        className="rounded bg-sky-600 px-3 py-1 text-sm font-medium text-white hover:bg-sky-500 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-sky-400"
       >
         {busy ? 'Refreshing…' : 'Refresh'}
       </button>

@@ -17,7 +17,8 @@ export function Sidebar({ view, onNavigate }: { view: View; onNavigate: (v: View
         <button
           key={item.view}
           onClick={() => onNavigate({ view: item.view } as View)}
-          className={`mb-1 rounded px-2 py-1.5 text-left text-sm font-medium ${
+          aria-current={view.view === item.view ? 'page' : undefined}
+          className={`mb-1 rounded px-2 py-1.5 text-left text-sm font-medium focus-visible:ring-2 focus-visible:ring-sky-400 ${
             view.view === item.view
               ? 'bg-sky-100 text-sky-800 dark:bg-sky-900/50 dark:text-sky-300'
               : 'text-slate-600 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-800'
